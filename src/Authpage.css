@@ -1,11 +1,18 @@
-/* keep box-sizing global but avoid overwriting global fonts */
 * {
   box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
 }
 
-/* scoped background for the login page */
+body {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .auth-page-bg {
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   min-height: 100vh;
@@ -14,16 +21,13 @@
   align-items: center;
 }
 
-/* centered container */
 .auth-container {
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 0;
 }
 
-/* card */
 .auth-box {
   width: 420px;
   max-width: 94%;
@@ -35,7 +39,10 @@
   text-align: center;
   transition: 0.3s ease-in-out;
 }
-.auth-box:hover { transform: translateY(-5px); }
+
+.auth-box:hover {
+  transform: translateY(-5px);
+}
 
 .auth-box h2 {
   color: #6a11cb;
@@ -77,7 +84,11 @@
   cursor: pointer;
   transition: 0.3s;
 }
-.auth-box button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+.auth-box button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
 
 .logout-btn {
   width: 100%;
@@ -91,10 +102,33 @@
   cursor: pointer;
   transition: 0.3s;
 }
-.logout-btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-.toggle-text { color: var(--muted); margin-top: 10px; font-size: 14px; }
-.toggle-text span { color: #6a11cb; cursor: pointer; font-weight: 600; margin-left: 5px; transition: 0.2s; }
-.toggle-text span:hover { color: #2575fc; }
+.logout-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
 
-.error-msg { color: #ff4d4f; margin-bottom: 10px; font-size: 14px; font-weight: 500; }
+.toggle-text {
+  color: var(--muted);
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.toggle-text span {
+  color: #6a11cb;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 5px;
+  transition: 0.2s;
+}
+
+.toggle-text span:hover {
+  color: #2575fc;
+}
+
+.error-msg {
+  color: #ff4d4f;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}

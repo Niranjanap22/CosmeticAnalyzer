@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Authpage.css";
-import { useNavigate } from "react-router-dom";
+import "./AuthPage.css";
 import { auth } from "./firebase";
 import {
   createUserWithEmailAndPassword,
@@ -8,6 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -38,14 +38,12 @@ function AuthPage() {
 
     try {
       if (isLogin) {
-        // Login
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        // Sign Up
         await createUserWithEmailAndPassword(auth, email, password);
       }
-      // On success navigate to dashboard
-      navigate('/dashboard');
+      // redirect to dashboard after success
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }
@@ -58,74 +56,70 @@ function AuthPage() {
 
   if (user) {
     return (
-      <div className="auth-page-bg">
-        <div className="auth-container">
-          <div className="auth-box">
-            <h2>Welcome, {user.email}</h2>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
+      <div className="auth-container">
+        <div className="auth-box">
+          <h2>Welcome, {user.email}</h2>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="auth-page-bg">
-      <div className="auth-container">
-        <div className="auth-box">
-          <h2>{isLogin ? "Login" : "Sign Up"}</h2>
+    <div className="auth-container">
+      <div className="auth-box">
+        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
 
-          {error && <p className="error-msg">{error}</p>}
+        {error && <p className="error-msg">{error}</p>}
 
-          <form onSubmit={handleSubmit}>
-            {!isLogin && (
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            )}
-
+        <form onSubmit={handleSubmit}>
+          {!isLogin && (
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
+          )}
 
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {!isLogin && (
             <input
               type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+          )}
 
-            {!isLogin && (
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            )}
+          <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
+        </form>
 
-            <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
-          </form>
-
-          <p className="toggle-text">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <span onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? " Sign Up" : " Login"}
-            </span>
-          </p>
-        </div>
+        <p className="toggle-text">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}
+          <span onClick={() => setIsLogin(!isLogin)}>
+            {isLogin ? " Sign Up" : " Login"}
+          </span>
+        </p>
       </div>
     </div>
   );
