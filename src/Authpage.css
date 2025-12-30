@@ -1,11 +1,12 @@
+/* keep box-sizing global but avoid overwriting global fonts */
 * {
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
 }
 
-body {
+/* scoped background for the login page */
+.auth-page-bg {
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   min-height: 100vh;
   display: flex;
@@ -13,32 +14,40 @@ body {
   align-items: center;
 }
 
+/* centered container */
 .auth-container {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 40px 0;
 }
 
+/* card */
 .auth-box {
-  background-color: #ffffff;
-  padding: 40px 30px;
-  width: 400px;
-  border-radius: 15px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  width: 420px;
+  max-width: 94%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 250, 255, 0.98));
+  box-shadow: 0 10px 30px rgba(12, 18, 36, 0.08);
+  padding: 28px;
   text-align: center;
   transition: 0.3s ease-in-out;
 }
-
-.auth-box:hover {
-  transform: translateY(-5px);
-}
+.auth-box:hover { transform: translateY(-5px); }
 
 .auth-box h2 {
   color: #6a11cb;
-  margin-bottom: 25px;
+  margin-bottom: 8px;
   font-size: 28px;
+}
+
+.auth-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .auth-box input {
@@ -68,16 +77,12 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
-
-.auth-box button:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
+.auth-box button:hover { opacity: 0.9; transform: translateY(-2px); }
 
 .logout-btn {
   width: 100%;
   padding: 12px;
-  margin-top: 20px;
+  margin-top: 16px;
   border: none;
   border-radius: 8px;
   background: #6a11cb;
@@ -86,32 +91,10 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
+.logout-btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-.logout-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
+.toggle-text { color: var(--muted); margin-top: 10px; font-size: 14px; }
+.toggle-text span { color: #6a11cb; cursor: pointer; font-weight: 600; margin-left: 5px; transition: 0.2s; }
+.toggle-text span:hover { color: #2575fc; }
 
-.toggle-text {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #555;
-}
-
-.toggle-text span {
-  color: #6a11cb;
-  cursor: pointer;
-  font-weight: 600;
-  margin-left: 5px;
-  transition: 0.2s;
-}
-
-.toggle-text span:hover {
-  color: #2575fc;
-}
-
-.error-msg {
-  color: red;
-  margin-bottom: 10px;
-  font-size: 14px;
-}
+.error-msg { color: #ff4d4f; margin-bottom: 10px; font-size: 14px; font-weight: 500; }

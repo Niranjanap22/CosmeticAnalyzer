@@ -1,0 +1,13 @@
+.dashboard-grid {
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap:18px;
+  align-items:start;
+}
+@media (max-width:980px){
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+.uploader-card { padding:14px; border-radius:12px; background:linear-gradient(180deg,#fff,#fbfdff); }
+.results-card { padding:14px; border-radius:12px; background:#fff; }
+.kpi-row { display:flex; gap:12px; margin-bottom:12px; }
+.kpi { flex:1; background:#fff; border-radius:10px; padding:12px; box-shadow:var(--shadow); }
