@@ -19,6 +19,7 @@ export default function Dashboard() {
     setResult(analysis);
   };
 
+  
   return (
     <div className="app-container">
       <Header />
