@@ -7,6 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   // Track auth state
   useEffect(() => {
@@ -36,12 +38,12 @@ function AuthPage() {
 
     try {
       if (isLogin) {
-        // Login
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        // Sign Up
         await createUserWithEmailAndPassword(auth, email, password);
       }
+      // redirect to dashboard after success
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }
