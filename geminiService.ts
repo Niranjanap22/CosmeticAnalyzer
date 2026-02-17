@@ -2,13 +2,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "./types";
 
-// Always use process.env.API_KEY directly for initialization.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// GoogleGenAI initialization moved inside the function to prevent startup crashes if API key is missing
 
 export const analyzeCosmeticImage = async (base64Image: string): Promise<AnalysisResult> => {
   // Use gemini-3-flash-preview as it's a capable multimodal model for this task.
   const model = 'gemini-3-flash-preview';
-  
+
   const prompt = `
     Analyze this cosmetic product image. 
     1. Identify the product name and brand.
@@ -19,6 +18,13 @@ export const analyzeCosmeticImage = async (base64Image: string): Promise<Analysi
     6. Categorize each ingredient's hazard level as Low, Medium, or High.
     7. Summarize the findings and give a recommendation.
   `;
+
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    throw new Error("API Key not found. Please checks your .env file.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   // Query GenAI with both the model name and prompt/image parts.
   const response = await ai.models.generateContent({
