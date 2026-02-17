@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 import { auth } from './firebase';
 import AuthScreen from './components/Auth';
 import Dashboard from './components/Dashboard';
@@ -52,7 +52,7 @@ const App: React.FC = () => {
               <span className="text-sm font-semibold text-purple-900">{user.email?.split('@')[0]}</span>
               <span className="text-xs text-purple-500 uppercase font-bold tracking-widest">Premium Member</span>
             </div>
-            <button 
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-200 text-purple-700 hover:bg-purple-100 transition-all"
             >

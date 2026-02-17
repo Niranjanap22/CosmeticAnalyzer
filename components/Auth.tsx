@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 import { auth } from '../firebase';
 import { Mail, Lock, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
 
@@ -31,7 +31,7 @@ const AuthScreen: React.FC = () => {
     <div className="flex flex-col items-center justify-center py-10">
       <div className="text-center mb-10">
         <h1 className="text-4xl md:text-5xl font-extrabold text-purple-900 mb-4 leading-tight">
-          Know exactly what goes on <br/> 
+          Know exactly what goes on <br />
           <span className="text-purple-600">your skin.</span>
         </h1>
         <p className="text-purple-500 text-lg max-w-lg">
@@ -41,13 +41,13 @@ const AuthScreen: React.FC = () => {
 
       <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl shadow-purple-100 border border-purple-50">
         <div className="flex gap-4 mb-8 bg-purple-50 p-1 rounded-2xl">
-          <button 
+          <button
             onClick={() => setIsLogin(true)}
             className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-400'}`}
           >
             Login
           </button>
-          <button 
+          <button
             onClick={() => setIsLogin(false)}
             className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-400'}`}
           >
@@ -58,9 +58,9 @@ const AuthScreen: React.FC = () => {
         <form onSubmit={handleAuth} className="space-y-4">
           <div className="relative">
             <Mail className="absolute left-4 top-3.5 text-purple-300 w-5 h-5" />
-            <input 
-              type="email" 
-              placeholder="Email Address" 
+            <input
+              type="email"
+              placeholder="Email Address"
               className="w-full pl-12 pr-4 py-3.5 bg-purple-50/50 border border-purple-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -69,9 +69,9 @@ const AuthScreen: React.FC = () => {
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-3.5 text-purple-300 w-5 h-5" />
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type="password"
+              placeholder="Password"
               className="w-full pl-12 pr-4 py-3.5 bg-purple-50/50 border border-purple-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -81,7 +81,7 @@ const AuthScreen: React.FC = () => {
 
           {error && <p className="text-red-500 text-xs mt-2 px-2">{error}</p>}
 
-          <button 
+          <button
             type="submit"
             className="w-full purple-gradient text-white font-bold py-4 rounded-2xl shadow-xl shadow-purple-200 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
