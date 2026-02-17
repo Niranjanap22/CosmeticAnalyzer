@@ -1,0 +1,6 @@
+
+{
+  "name": "CosmoBot - Cosmetic Safety Analyzer",
+  "description": "Upload cosmetic product images to detect toxic compounds, analyze ingredients, and get a safety trust score using Gemini AI.",
+  "requestFramePermissions": ["camera"]
+}
