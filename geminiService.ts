@@ -14,7 +14,27 @@ Analyze this cosmetic product image carefully and return structured JSON.
 2. Extract the full ingredient list if visible.
 3. Identify any specific toxic or controversial compounds.
 4. For each ingredient, assign a hazard level: Low, Medium, or High.
-5. Provide an overall safety score from 0 to 100.
+5. Calculate the Overall Safety Score using the following defined weighted risk model:
+
+   Let:
+   L = number of Low-risk ingredients
+   M = number of Medium-risk ingredients
+   H = number of High-risk ingredients
+
+   Total Risk = (1 × L) + (3 × M) + (5 × H)
+
+   Maximum Possible Risk = 5 × (L + M + H)
+
+   Safety Score = (1 - (Total Risk / Maximum Possible Risk)) × 100
+
+   Important Rules:
+   - Show the values of L, M, H.
+   - Show the calculated Total Risk.
+   - Show the Maximum Possible Risk.
+   - Round the final Safety Score to 2 decimal places.
+   - If (L + M + H) = 0, return Safety Score = 0.
+   - Do not estimate or assume values.
+
 6. Provide a trust percentage (0–100) based on these criteria also give title as  Confidence in reading product data:
    - 90-100%: Crystal clear label, all ingredients visible, high confidence in accuracy
    - 70-89%: Good image quality, most ingredients visible, minor uncertainty
