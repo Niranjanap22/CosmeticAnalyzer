@@ -1,8 +1,7 @@
-
 import React, { useState, useRef } from 'react';
-import { Upload, Camera, FileText, CheckCircle2, AlertTriangle, Info, Loader2, RefreshCw, Sparkles } from 'lucide-react';
-import { analyzeCosmeticImage } from '../geminiService';
-import { AnalysisResult } from '../types';
+import { Upload, Camera, FileText, Info, Loader2, RefreshCw, Sparkles } from 'lucide-react';
+import { analyzeCosmeticImage } from '@/services/geminiService';
+import { AnalysisResult } from '@/types/types';
 import AnalysisResultView from './AnalysisResult';
 
 const Dashboard: React.FC = () => {
@@ -47,17 +46,15 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-10 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        {/* Left Column: Input */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white p-8 rounded-3xl shadow-xl shadow-purple-100 border border-purple-50">
             <h2 className="text-2xl font-bold text-purple-900 mb-6 flex items-center gap-2">
               <Camera className="w-6 h-6 text-purple-600" />
               Upload Product Image
             </h2>
-            
+
             {!image ? (
-              <div 
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 className="border-2 border-dashed border-purple-200 rounded-2xl p-12 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-purple-50 transition-all group"
               >
@@ -68,12 +65,12 @@ const Dashboard: React.FC = () => {
                   <p className="font-bold text-purple-900 text-lg">Click to upload photo</p>
                   <p className="text-purple-400 text-sm">Clear shot of the ingredient list works best</p>
                 </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  accept="image/*" 
-                  onChange={handleImageUpload} 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
                 />
               </div>
             ) : (
@@ -81,7 +78,7 @@ const Dashboard: React.FC = () => {
                 <div className="relative group rounded-2xl overflow-hidden border border-purple-100 aspect-square">
                   <img src={image} alt="Product" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button 
+                    <button
                       onClick={() => fileInputRef.current?.click()}
                       className="bg-white text-purple-700 px-6 py-2 rounded-full font-bold shadow-lg"
                     >
@@ -91,7 +88,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {!result && (
-                  <button 
+                  <button
                     disabled={isAnalyzing}
                     onClick={startAnalysis}
                     className="w-full purple-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-purple-200 flex items-center justify-center gap-2 disabled:opacity-50"
@@ -109,9 +106,9 @@ const Dashboard: React.FC = () => {
                     )}
                   </button>
                 )}
-                
+
                 {result && (
-                  <button 
+                  <button
                     onClick={reset}
                     className="w-full bg-purple-100 text-purple-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2"
                   >
@@ -123,7 +120,6 @@ const Dashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Quick Info Card */}
           <div className="bg-indigo-900 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
@@ -138,7 +134,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Analysis Results */}
         <div className="lg:col-span-7">
           {!result && !isAnalyzing ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-purple-100 rounded-3xl">
@@ -158,7 +153,7 @@ const Dashboard: React.FC = () => {
               <p className="text-purple-500 mt-2 max-w-md">
                 Our AI is scanning thousands of ingredient databases to ensure your cosmetic is safe for daily use.
               </p>
-              
+
               <div className="mt-8 space-y-4 w-full max-w-xs">
                 <div className="h-2 w-full bg-purple-100 rounded-full overflow-hidden">
                   <div className="h-full bg-purple-600 animate-[loading_2s_ease-in-out_infinite]"></div>
@@ -186,3 +181,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+

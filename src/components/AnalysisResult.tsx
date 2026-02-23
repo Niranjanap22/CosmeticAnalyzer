@@ -1,12 +1,10 @@
 import React from "react";
-import { AnalysisResult } from "../types";
+import { AnalysisResult } from "@/types/types";
 import {
   ShieldCheck,
   AlertCircle,
   List,
   Info,
-  ChevronRight,
-  Gauge,
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -15,12 +13,6 @@ interface Props {
 }
 
 const AnalysisResultView: React.FC<Props> = ({ data }) => {
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "#10b981"; // Green
-    if (score >= 50) return "#f59e0b"; // Orange
-    return "#ef4444"; // Red
-  };
-
   const chartData = [
     { name: "Score", value: data.overallSafetyScore },
     { name: "Remaining", value: 100 - data.overallSafetyScore },
@@ -28,7 +20,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-purple-100 border border-purple-50 overflow-hidden animate-in fade-in slide-in-from-right-8 duration-500">
-      {/* Header Summary */}
       <div className="purple-gradient p-8 text-white relative">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -68,7 +59,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
       </div>
 
       <div className="p-8 space-y-8">
-        {/* Trust Percentage & Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-purple-50 border border-purple-100">
             <div className="flex items-center gap-3 mb-4">
@@ -82,7 +72,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                 {data.trustPercentage}%
               </span>
               <p className="text-sm text-purple-500 mb-1 leading-tight font-medium">
-               Confidence in reading product data
+                Confidence in reading product data
               </p>
             </div>
             <div className="mt-4 h-1.5 w-full bg-purple-200 rounded-full overflow-hidden">
@@ -106,7 +96,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           </div>
         </div>
 
-        {/* Toxic Compounds Warning */}
         {data.toxicCompounds.length > 0 && (
           <div className="p-6 rounded-2xl bg-red-50 border border-red-100">
             <div className="flex items-center gap-2 mb-4 text-red-600">
@@ -132,7 +121,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           </div>
         )}
 
-        {/* Grouped Ingredients by Risk Level */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h4 className="text-xl font-extrabold text-purple-900 flex items-center gap-2">
@@ -145,7 +133,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           </div>
 
           <div className="space-y-6">
-            {/* High Risk Ingredients */}
             {data.ingredients.filter((i) => i.hazardLevel === "High").length >
               0 && (
               <div className="bg-red-50 border border-red-100 rounded-2xl p-6">
@@ -186,7 +173,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               </div>
             )}
 
-            {/* Medium Risk Ingredients */}
             {data.ingredients.filter((i) => i.hazardLevel === "Medium").length >
               0 && (
               <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6">
@@ -227,7 +213,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               </div>
             )}
 
-            {/* Low Risk Ingredients */}
             {data.ingredients.filter((i) => i.hazardLevel === "Low").length >
               0 && (
               <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
@@ -270,7 +255,6 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           </div>
         </div>
 
-        {/* Recommendation */}
         <div className="bg-purple-900 text-white p-6 rounded-2xl flex items-start gap-4">
           <div className="bg-purple-800 p-3 rounded-xl">
             <Info className="w-6 h-6" />
@@ -288,3 +272,4 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
 };
 
 export default AnalysisResultView;
+

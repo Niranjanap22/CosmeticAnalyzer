@@ -1,10 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { AnalysisResult } from "./types";
-
-// GoogleGenAI initialization moved inside the function to prevent startup crashes if API key is missing
+import { AnalysisResult } from "@/types/types";
 
 export const analyzeCosmeticImage = async (base64Image: string): Promise<AnalysisResult> => {
-  // Use gemini-3-flash-preview as it's a capable multimodal model for this task.
   const model = 'gemini-3-flash-preview';
 
   const prompt = `
@@ -46,15 +43,13 @@ Respond ONLY with valid JSON matching the provided schema.
 Do not include explanations outside the JSON.
 `;
 
-
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY as string | undefined;
   if (!apiKey) {
     throw new Error("API Key not found. Please checks your .env file.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Query GenAI with both the model name and prompt/image parts.
   const response = await ai.models.generateContent({
     model: model,
     contents: {
@@ -97,7 +92,6 @@ Do not include explanations outside the JSON.
     }
   });
 
-  // Directly access the .text property on the GenerateContentResponse object.
   const text = response.text;
   if (!text) throw new Error("No response from Gemini");
   return JSON.parse(text.trim());

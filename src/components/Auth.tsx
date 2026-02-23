@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import { auth } from '../firebase';
+import { auth } from '@/lib/firebase';
 import { Mail, Lock, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
 
 const AuthScreen: React.FC = () => {
@@ -16,10 +15,8 @@ const AuthScreen: React.FC = () => {
     setError('');
     try {
       if (isLogin) {
-        // Use v8 style sign-in method on the auth instance
         await auth.signInWithEmailAndPassword(email, password);
       } else {
-        // Use v8 style sign-up method on the auth instance
         await auth.createUserWithEmailAndPassword(email, password);
       }
     } catch (err: any) {
@@ -100,3 +97,4 @@ const AuthScreen: React.FC = () => {
 };
 
 export default AuthScreen;
+

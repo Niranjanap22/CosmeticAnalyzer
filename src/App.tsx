@@ -1,19 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import { auth } from './firebase';
-import AuthScreen from './components/Auth';
-import Dashboard from './components/Dashboard';
+import { auth } from '@/lib/firebase';
+import AuthScreen from '@/components/Auth';
+import Dashboard from '@/components/Dashboard';
 import { Sparkles, LogOut, User as UserIcon } from 'lucide-react';
 
 const App: React.FC = () => {
-  // Use firebase.User type for the user state
   const [user, setUser] = useState<firebase.User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Use the v8 style onAuthStateChanged on the auth instance
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -35,7 +32,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-purple-50/30">
-      {/* Navigation */}
       <nav className="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-2 cursor-pointer">
           <div className="purple-gradient p-2 rounded-xl shadow-lg shadow-purple-200">
@@ -67,7 +63,6 @@ const App: React.FC = () => {
         {!user ? <AuthScreen /> : <Dashboard />}
       </main>
 
-      {/* Footer */}
       <footer className="mt-20 border-t border-purple-100 py-10 text-center">
         <p className="text-purple-400 text-sm">
           &copy; 2024 CosmoBot AI. Empowering consumers with radical transparency.
@@ -78,3 +73,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
