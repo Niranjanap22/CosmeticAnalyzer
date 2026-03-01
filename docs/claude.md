@@ -107,7 +107,7 @@ This is like taping your house key to the front door. When Vite builds your site
 - The backend should call Gemini using the secret API key **stored server-side only**.
 - The backend returns only the safe analysis JSON to the browser.
 
-### 🟠 Reliability Issue: AI Doing Math
+### ✅ Reliability Issue: AI Doing Math (Resolved)
 
 **What the code does today:**  
 The prompt in `geminiService.ts` asks Gemini to calculate the safety score:
@@ -126,17 +126,16 @@ Large Language Models (like Gemini/ChatGPT) are great at language but not perfec
 - Make arithmetic mistakes.
 - Return inconsistent scores for the same ingredients.
 
-This makes the safety score less trustworthy.
+**Resolution (Implemented):**
+We have moved the scoring logic to **TypeScript** in `geminiService.ts`.
 
-**Recommended fix (future architecture):**
-- Ask Gemini only to:
-  - List ingredients.
-  - Assign hazard levels (Low, Medium, High).
-  - Optionally describe why.
-- In TypeScript (in the app or, ideally, on the backend), compute:
-  - `L`, `M`, `H`.
-  - `Total Risk`, `Maximum Possible Risk`, and `Safety Score`.
-- This keeps the math deterministic and testable, while still using AI for understanding the label.
+1. Gemini identifies ingredients and assigns hazard levels (Low, Medium, High).
+2. The app calculates the score deterministically:
+   ```ts
+   Safety Score = (1 - (Total Risk / Max Risk)) * 100
+   ```
+
+This ensures that if the ingredients are identified correctly, the score is always mathematically correct.
 
 ### 🟡 Code Quality & Error Handling
 
@@ -165,4 +164,3 @@ This means:
   - e.g., a card that says:  
     "We couldn’t read this label. Please upload a clearer, close-up photo of the ingredients."
 - Optionally log technical details (stack traces, raw responses) only in the console or to a monitoring service, not in the user-facing UI.
-

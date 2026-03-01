@@ -1,6 +1,7 @@
 # Cosmetic Analyzer: Main Feature Upgrade Proposal
 
 > **Context:** The current image-to-analysis flow relies on a single AI call to both extract ingredients and compute a safety score. Because the model is stochastic, scanning the *same* product image multiple times yields different scores, ingredient lists, and hazard classifications—undermining user trust.
+> **Update:** We have implemented **Option A** (AI Extraction + Deterministic Scoring) as of the latest refactor.
 
 ---
 

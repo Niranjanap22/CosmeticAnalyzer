@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Upload, Camera, FileText, Info, Loader2, RefreshCw, Sparkles } from 'lucide-react';
 import { analyzeCosmeticImage } from '@/services/geminiService';
 import { AnalysisResult } from '@/types/types';
+import { processImage } from '@/utils/imageUtils';
 import AnalysisResultView from './AnalysisResult';
 
 const Dashboard: React.FC = () => {
@@ -13,12 +14,12 @@ const Dashboard: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
+      processImage(file).then((resizedImage) => {
+        setImage(resizedImage);
         setResult(null);
-      };
-      reader.readAsDataURL(file);
+      }).catch(err => console.error("Image processing failed", err));
+      // Reset the input value to allow re-uploading the same file
+      e.target.value = '';
     }
   };
 
@@ -53,6 +54,14 @@ const Dashboard: React.FC = () => {
               Upload Product Image
             </h2>
 
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+
             {!image ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -65,13 +74,6 @@ const Dashboard: React.FC = () => {
                   <p className="font-bold text-purple-900 text-lg">Click to upload photo</p>
                   <p className="text-purple-400 text-sm">Clear shot of the ingredient list works best</p>
                 </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
               </div>
             ) : (
               <div className="space-y-6">
@@ -181,4 +183,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-

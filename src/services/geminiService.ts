@@ -11,33 +11,12 @@ Analyze this cosmetic product image carefully and return structured JSON.
 2. Extract the full ingredient list if visible.
 3. Identify any specific toxic or controversial compounds.
 4. For each ingredient, assign a hazard level: Low, Medium, or High.
-5. Calculate the Overall Safety Score using the following defined weighted risk model:
-
-   Let:
-   L = number of Low-risk ingredients
-   M = number of Medium-risk ingredients
-   H = number of High-risk ingredients
-
-   Total Risk = (1 × L) + (3 × M) + (5 × H)
-
-   Maximum Possible Risk = 5 × (L + M + H)
-
-   Safety Score = (1 - (Total Risk / Maximum Possible Risk)) × 100
-
-   Important Rules:
-   - Show the values of L, M, H.
-   - Show the calculated Total Risk.
-   - Show the Maximum Possible Risk.
-   - Round the final Safety Score to 2 decimal places.
-   - If (L + M + H) = 0, return Safety Score = 0.
-   - Do not estimate or assume values.
-
-6. Provide a trust percentage (0–100) based on these criteria also give title as  Confidence in reading product data:
+5. Provide a trust percentage (0–100) based on these criteria also give title as Confidence in reading product data:
    - 90-100%: Crystal clear label, all ingredients visible, high confidence in accuracy
    - 70-89%: Good image quality, most ingredients visible, minor uncertainty
    - 50-69%: Moderate clarity, some ingredients unclear or partially visible
    - Below 50%: Poor image quality, difficult to read, significant uncertainty
-7. Summarize the findings and give a recommendation.
+6. Summarize the findings and give a recommendation.
 
 Respond ONLY with valid JSON matching the provided schema.
 Do not include explanations outside the JSON.
@@ -59,13 +38,13 @@ Do not include explanations outside the JSON.
       ]
     },
     config: {
+      temperature: 0, // Force deterministic output
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
           productName: { type: Type.STRING },
           brand: { type: Type.STRING },
-          overallSafetyScore: { type: Type.NUMBER },
           trustPercentage: { type: Type.NUMBER },
           ingredients: {
             type: Type.ARRAY,
@@ -87,13 +66,39 @@ Do not include explanations outside the JSON.
           summary: { type: Type.STRING },
           recommendation: { type: Type.STRING }
         },
-        required: ["productName", "overallSafetyScore", "trustPercentage", "ingredients"]
+        required: ["productName", "trustPercentage", "ingredients"]
       }
     }
   });
 
   const text = response.text;
   if (!text) throw new Error("No response from Gemini");
-  return JSON.parse(text.trim());
-};
+  
+  const result = JSON.parse(text.trim());
 
+  // Calculate the Overall Safety Score deterministically
+  let L = 0, M = 0, H = 0;
+  
+  if (result.ingredients && Array.isArray(result.ingredients)) {
+    result.ingredients.forEach((ing: any) => {
+      const level = ing.hazardLevel?.toLowerCase() || "";
+      if (level.includes("low")) L++;
+      else if (level.includes("medium")) M++;
+      else if (level.includes("high")) H++;
+    });
+  }
+
+  const total = L + M + H;
+  let safetyScore = 0;
+
+  if (total > 0) {
+    const totalRisk = (1 * L) + (3 * M) + (5 * H);
+    const maxRisk = 5 * total;
+    safetyScore = (1 - (totalRisk / maxRisk)) * 100;
+  }
+
+  return {
+    ...result,
+    overallSafetyScore: Number(safetyScore.toFixed(2))
+  };
+};

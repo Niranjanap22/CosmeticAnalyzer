@@ -16,8 +16,9 @@ Imagine Sarah:
   - product name
   - brand
   - ingredients with hazard levels
-  - a safety score and trust percentage
-- **Step 6**: The app shows her a **visual report**: score, warnings, and recommendations.
+  - a trust percentage
+- **Step 6**: The app **calculates the safety score** locally using a fixed formula.
+- **Step 7**: The app shows her a **visual report**: score, warnings, and recommendations.
 
 The rest of this doc explains which files are involved and how React code moves data around.
 
@@ -39,6 +40,7 @@ Important folders and files:
 - **`src/services/geminiService.ts`**: A **service file** that calls the Gemini API and returns a typed `AnalysisResult`.
 - **`src/lib/firebase.ts`**: A small **library/wrapper file** that initializes Firebase and exports the `auth` object.
 - **`src/types/types.ts`**: Shared TypeScript **types** like `AnalysisResult` and `IngredientInfo`.
+- **`src/utils/imageUtils.ts`**: Helper functions for image processing (e.g., resizing before upload).
 - **`vite.config.ts`** and **`tsconfig.json`**: Tooling configuration. Among other things, they set up the `@` path alias.
 
 ---
@@ -72,6 +74,7 @@ This means:
 - `@/lib/firebase` → `src/lib/firebase.ts`
 - `@/services/geminiService` → `src/services/geminiService.ts`
 - `@/types/types` → `src/types/types.ts`
+- `@/utils/imageUtils` → `src/utils/imageUtils.ts`
 
 **Why it’s useful**: Instead of writing long relative paths like `../../services/geminiService`, you can use a clean, stable path that doesn’t break when folders move.
 
@@ -472,4 +475,3 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
   - Purpose: display the analysis report (score, trust, toxic compounds, ingredient lists).
 
 This should give you a clear mental map of how a user action travels through the files. Next, we can refactor the Gemini scoring or move the API call server-side, if you’d like to improve security and reliability.
-

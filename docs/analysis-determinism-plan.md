@@ -1,5 +1,10 @@
 ### Making CosmoBot More Deterministic
 
+> **Status Update (Current):** 
+> We have successfully moved the **Safety Scoring Math** to the client-side (TypeScript). 
+> We attempted Client-Side OCR (Tesseract) but abandoned it due to poor performance on curved bottles. We are currently using **Gemini 3 Flash Preview** for vision.
+> **This document is preserved for historical context regarding the decision process.**
+
 This document explains **why the AI gives different answers for the same product**, and proposes a more deterministic design that:
 
 - Uses **non‑AI OCR** (text recognition) to extract ingredients when possible.
@@ -22,7 +27,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "@/types/types";
 
 export const analyzeCosmeticImage = async (base64Image: string): Promise<AnalysisResult> => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-1.5-flash';
 ```
 
 The **prompt** asks Gemini to:
@@ -326,15 +331,15 @@ Putting it all together:
 
 **Phase 1 – Make math deterministic (no OCR yet)**
 
-1. **Change the Gemini prompt** to:
+1. [x] **Change the Gemini prompt** to:
    - Stop asking the model to calculate scores.
    - Only ask for classification + toxic compounds + summary/recommendation.
-2. **Add a local `computeSafetyScore` function** (as above) in a new utility or service file.
-3. **Update `geminiService.ts`** to:
+2. [x] **Add a local `computeSafetyScore` function** (as above) in a new utility or service file.
+3. [x] **Update `geminiService.ts`** to:
    - Call Gemini for classification.
    - Compute the score locally.
    - Return a full `AnalysisResult` with the computed score.
-4. **Optionally add `generationConfig`** with `temperature: 0`, `topK: 1`.
+4. [x] **Optionally add `generationConfig`** with `temperature: 0`.
 
 This phase already improves determinism a lot, with minimal changes.
 
@@ -380,4 +385,3 @@ This phase already improves determinism a lot, with minimal changes.
   - When calling Gemini, use low `temperature` and `topK = 1` for stability.
 
 With this design, you keep the **intelligence** of Gemini while gaining **predictability** and a much clearer mental model of where differences can still come from.
-
