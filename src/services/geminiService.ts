@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "@/types/types";
+import { checkCompliance } from "./regulatoryService";
 
 export const analyzeCosmeticImage = async (base64Image: string): Promise<AnalysisResult> => {
   const model = 'gemini-3-flash-preview';
@@ -75,6 +76,7 @@ Do not include explanations outside the JSON.
   if (!text) throw new Error("No response from Gemini");
   
   const result = JSON.parse(text.trim());
+  console.log("Gemini AI Output:", JSON.stringify(result, null, 2));
 
   // Calculate the Overall Safety Score deterministically
   let L = 0, M = 0, H = 0;
@@ -97,8 +99,14 @@ Do not include explanations outside the JSON.
     safetyScore = (1 - (totalRisk / maxRisk)) * 100;
   }
 
+  // Run Regulatory Compliance Checks
+  const ingredientNames = result.ingredients ? result.ingredients.map((i: any) => i.name) : [];
+  const compliance = checkCompliance(ingredientNames);
+
   return {
     ...result,
-    overallSafetyScore: Number(safetyScore.toFixed(2))
+    overallSafetyScore: Number(safetyScore.toFixed(2)),
+    fdaCompliance: compliance.fda,
+    euCompliance: compliance.eu
   };
 };

@@ -1,22 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { AnalysisResult } from "@/types/types";
 import {
   ShieldCheck,
   AlertCircle,
   List,
   Info,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  BookOpen
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import RegulatoryModal from './RegulatoryModal';
 
 interface Props {
   data: AnalysisResult;
 }
 
 const AnalysisResultView: React.FC<Props> = ({ data }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [modalTab, setModalTab] = useState<'FDA' | 'EU'>('FDA');
+
   const chartData = [
     { name: "Score", value: data.overallSafetyScore },
     { name: "Remaining", value: 100 - data.overallSafetyScore },
   ];
+
+  const openModal = (tab: 'FDA' | 'EU') => {
+    setModalTab(tab);
+    setShowModal(true);
+  };
 
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-purple-100 border border-purple-50 overflow-hidden animate-in fade-in slide-in-from-right-8 duration-500">
@@ -65,14 +78,14 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               <div className="bg-purple-600 p-2 rounded-lg">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
-              <h4 className="font-bold text-purple-900">AI Trust Score</h4>
+              <h4 className="font-bold text-purple-900">Confidence in Reading Image</h4>
             </div>
             <div className="flex items-end gap-3">
               <span className="text-4xl font-black text-purple-600">
                 {data.trustPercentage}%
               </span>
               <p className="text-sm text-purple-500 mb-1 leading-tight font-medium">
-                Confidence in reading product data
+                Image Reading Accuracy
               </p>
             </div>
             <div className="mt-4 h-1.5 w-full bg-purple-200 rounded-full overflow-hidden">
@@ -93,6 +106,61 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
             <p className="text-indigo-800 text-sm font-medium leading-relaxed italic">
               "{data.summary}"
             </p>
+          </div>
+        </div>
+
+        {/* Regulatory Compliance Section (Added) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* FDA Card */}
+          <div className={`p-6 rounded-2xl border ${data.fdaCompliance?.isClean ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                {data.fdaCompliance?.isClean ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <XCircle className="w-6 h-6 text-red-600" />
+                )}
+                <h3 className="font-bold text-gray-900">FDA Compliance</h3>
+              </div>
+              <button onClick={() => openModal('FDA')} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                <BookOpen className="w-3 h-3" /> Standards
+              </button>
+            </div>
+            {data.fdaCompliance?.isClean ? (
+              <p className="text-sm text-green-800">No FDA banned ingredients detected.</p>
+            ) : (
+              <ul className="text-sm text-red-800 space-y-1">
+                {data.fdaCompliance?.issues?.map((issue, idx) => (
+                  <li key={idx}>• {issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* EU Card */}
+          <div className={`p-6 rounded-2xl border ${data.euCompliance?.isClean ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                {data.euCompliance?.isClean ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <AlertTriangle className="w-6 h-6 text-amber-600" />
+                )}
+                <h3 className="font-bold text-gray-900">EU Compliance</h3>
+              </div>
+              <button onClick={() => openModal('EU')} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                <BookOpen className="w-3 h-3" /> Standards
+              </button>
+            </div>
+            {data.euCompliance?.isClean ? (
+              <p className="text-sm text-green-800">No EU banned/restricted ingredients detected.</p>
+            ) : (
+              <ul className="text-sm text-amber-900 space-y-1">
+                {data.euCompliance?.issues?.map((issue, idx) => (
+                  <li key={idx}>• {issue}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -267,9 +335,9 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           </div>
         </div>
       </div>
+      <RegulatoryModal isOpen={showModal} onClose={() => setShowModal(false)} initialTab={modalTab} />
     </div>
   );
 };
 
 export default AnalysisResultView;
-
