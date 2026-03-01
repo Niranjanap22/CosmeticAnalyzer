@@ -4,16 +4,19 @@ import 'firebase/compat/auth';
 import { auth } from '@/lib/firebase';
 import AuthScreen from '@/components/Auth';
 import Dashboard from '@/components/Dashboard';
-import { Sparkles, LogOut, User as UserIcon } from 'lucide-react';
+import HistoryView from '@/components/HistoryView';
+import { Sparkles, LogOut, History, Home } from 'lucide-react';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<firebase.User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'dashboard' | 'history'>('dashboard');
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      setView('dashboard'); // Reset to dashboard on auth change
     });
     return () => unsubscribe();
   }, []);
@@ -32,7 +35,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-purple-50/30">
-      <nav className="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-sm">
+      <nav className="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-2 cursor-pointer">
           <div className="purple-gradient p-2 rounded-xl shadow-lg shadow-purple-200">
             <Sparkles className="text-white w-6 h-6" />
@@ -48,19 +51,38 @@ const App: React.FC = () => {
               <span className="text-sm font-semibold text-purple-900">{user.email?.split('@')[0]}</span>
               <span className="text-xs text-purple-500 uppercase font-bold tracking-widest">Premium Member</span>
             </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center gap-2 p-1 bg-purple-100 rounded-full border border-purple-200">
+              <button
+                onClick={() => setView('dashboard')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'dashboard' ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-500 hover:bg-purple-50/50'}`}
+              >
+                <Home className="w-4 h-4" />
+                <span className="hidden md:inline">Dashboard</span>
+              </button>
+              <button
+                onClick={() => setView('history')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'history' ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-500 hover:bg-purple-50/50'}`}
+              >
+                <History className="w-4 h-4" />
+                <span className="hidden md:inline">History</span>
+              </button>
+            </div>
+
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-200 text-purple-700 hover:bg-purple-100 transition-all"
             >
               <LogOut className="w-4 h-4" />
-              <span className="text-sm font-medium">Logout</span>
+              <span className="text-sm font-medium hidden md:inline">Logout</span>
             </button>
           </div>
         )}
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {!user ? <AuthScreen /> : <Dashboard />}
+        {!user ? <AuthScreen /> : view === 'dashboard' ? <Dashboard /> : <HistoryView />}
       </main>
 
       <footer className="mt-20 border-t border-purple-100 py-10 text-center">
@@ -73,4 +95,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

@@ -30,3 +30,15 @@ export interface UserState {
   isLoggedIn: boolean;
   email: string | null;
 }
+
+export interface ScanHistoryItem {
+  id?: string;
+  userId: string;
+  timestamp: number;
+  productName: string;
+  brand: string;
+  overallSafetyScore: number;
+  trustPercentage: number;
+  summary: string;
+  analysisData: AnalysisResult;
+}

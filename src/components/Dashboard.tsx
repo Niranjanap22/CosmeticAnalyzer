@@ -4,6 +4,8 @@ import { analyzeCosmeticImage } from '@/services/geminiService';
 import { AnalysisResult } from '@/types/types';
 import { processImage } from '@/utils/imageUtils';
 import AnalysisResultView from './AnalysisResult';
+import { auth } from '@/lib/firebase';
+import { saveScan } from '@/services/historyService';
 
 const Dashboard: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -30,6 +32,11 @@ const Dashboard: React.FC = () => {
       const base64Data = image.split(',')[1];
       const data = await analyzeCosmeticImage(base64Data);
       setResult(data);
+
+      // Auto-save to history if user is logged in
+      if (auth.currentUser) {
+        saveScan(auth.currentUser.uid, data).catch(console.error);
+      }
     } catch (err) {
       console.error("Analysis failed", err);
       alert("Something went wrong during analysis. Please try a clearer image.");
