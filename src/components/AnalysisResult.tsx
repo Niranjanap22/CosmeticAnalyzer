@@ -8,7 +8,9 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  Skull,
+  Zap
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import RegulatoryModal from './RegulatoryModal';
@@ -19,14 +21,14 @@ interface Props {
 
 const AnalysisResultView: React.FC<Props> = ({ data }) => {
   const [showModal, setShowModal] = useState(false);
-  const [modalTab, setModalTab] = useState<'FDA' | 'EU'>('FDA');
+  const [modalTab, setModalTab] = useState<'FDA' | 'EU' | 'CARCINOGENS' | 'ALLERGENS' | 'ENDOCRINE'>('FDA');
 
   const chartData = [
     { name: "Score", value: data.overallSafetyScore },
     { name: "Remaining", value: 100 - data.overallSafetyScore },
   ];
 
-  const openModal = (tab: 'FDA' | 'EU') => {
+  const openModal = (tab: 'FDA' | 'EU' | 'CARCINOGENS' | 'ALLERGENS' | 'ENDOCRINE') => {
     setModalTab(tab);
     setShowModal(true);
   };
@@ -157,6 +159,84 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
             ) : (
               <ul className="text-sm text-amber-900 space-y-1">
                 {data.euCompliance?.issues?.map((issue, idx) => (
+                  <li key={idx}>• {issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Carcinogens Card */}
+          <div className={`p-6 rounded-2xl border ${data.carcinogenStatus?.isClean ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                {data.carcinogenStatus?.isClean ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <Skull className="w-6 h-6 text-red-600" />
+                )}
+                <h3 className="font-bold text-gray-900">Carcinogens</h3>
+              </div>
+              <button onClick={() => openModal('CARCINOGENS')} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                <BookOpen className="w-3 h-3" /> List
+              </button>
+            </div>
+            {data.carcinogenStatus?.isClean ? (
+              <p className="text-sm text-green-800">No known carcinogens detected.</p>
+            ) : (
+              <ul className="text-sm text-red-800 space-y-1">
+                {data.carcinogenStatus?.issues?.map((issue, idx) => (
+                  <li key={idx}>• {issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Allergens Card */}
+          <div className={`p-6 rounded-2xl border ${data.allergenStatus?.isClean ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                {data.allergenStatus?.isClean ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <AlertCircle className="w-6 h-6 text-amber-600" />
+                )}
+                <h3 className="font-bold text-gray-900">Allergens</h3>
+              </div>
+              <button onClick={() => openModal('ALLERGENS')} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                <BookOpen className="w-3 h-3" /> List
+              </button>
+            </div>
+            {data.allergenStatus?.isClean ? (
+              <p className="text-sm text-green-800">No common allergens detected.</p>
+            ) : (
+              <ul className="text-sm text-amber-900 space-y-1">
+                {data.allergenStatus?.issues?.map((issue, idx) => (
+                  <li key={idx}>• {issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Endocrine Disruptors Card */}
+          <div className={`p-6 rounded-2xl border ${data.endocrineStatus?.isClean ? 'bg-green-50 border-green-100' : 'bg-purple-50 border-purple-100'} md:col-span-2`}>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                {data.endocrineStatus?.isClean ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <Zap className="w-6 h-6 text-purple-600" />
+                )}
+                <h3 className="font-bold text-gray-900">Endocrine Disruptors</h3>
+              </div>
+              <button onClick={() => openModal('ENDOCRINE')} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                <BookOpen className="w-3 h-3" /> List
+              </button>
+            </div>
+            {data.endocrineStatus?.isClean ? (
+              <p className="text-sm text-green-800">No known endocrine disruptors detected.</p>
+            ) : (
+              <ul className="text-sm text-purple-800 space-y-1">
+                {data.endocrineStatus?.issues?.map((issue, idx) => (
                   <li key={idx}>• {issue}</li>
                 ))}
               </ul>

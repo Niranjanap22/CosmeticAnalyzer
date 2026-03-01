@@ -32,12 +32,12 @@ Do not include explanations outside the JSON.
 
   const response = await ai.models.generateContent({
     model: model,
-    contents: {
+    contents: [{
       parts: [
         { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
         { text: prompt }
       ]
-    },
+    }],
     config: {
       temperature: 0, // Force deterministic output
       responseMimeType: "application/json",
@@ -75,7 +75,10 @@ Do not include explanations outside the JSON.
   const text = response.text;
   if (!text) throw new Error("No response from Gemini");
   
-  const result = JSON.parse(text.trim());
+  // Clean markdown code blocks if present (```json ... ```)
+  const cleanText = text.replace(/```json\n?|\n?```/g, "").trim();
+  
+  const result = JSON.parse(cleanText);
   console.log("Gemini AI Output:", JSON.stringify(result, null, 2));
 
   // Calculate the Overall Safety Score deterministically
@@ -107,6 +110,9 @@ Do not include explanations outside the JSON.
     ...result,
     overallSafetyScore: Number(safetyScore.toFixed(2)),
     fdaCompliance: compliance.fda,
-    euCompliance: compliance.eu
+    euCompliance: compliance.eu,
+    carcinogenStatus: compliance.carcinogens,
+    allergenStatus: compliance.allergens,
+    endocrineStatus: compliance.endocrine
   };
 };

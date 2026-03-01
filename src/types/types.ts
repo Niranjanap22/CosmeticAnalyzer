@@ -21,6 +21,9 @@ export interface AnalysisResult {
   recommendation: string;
   fdaCompliance: RegulatoryStatus;
   euCompliance: RegulatoryStatus;
+  carcinogenStatus: RegulatoryStatus;
+  allergenStatus: RegulatoryStatus;
+  endocrineStatus: RegulatoryStatus;
 }
 
 export interface UserState {

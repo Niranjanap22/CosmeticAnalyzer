@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { X, ShieldAlert, AlertTriangle, CheckCircle } from 'lucide-react';
-import { FDA_BANNED, EU_BANNED, EU_RESTRICTED } from '@/data/regulatoryData';
+import React, { useState, useEffect } from 'react';
+import { X, ShieldAlert, AlertTriangle, Skull, Activity, Zap } from 'lucide-react';
+import { FDA_BANNED, EU_BANNED, EU_RESTRICTED, CARCINOGENS, ALLERGENS, ENDOCRINE_DISRUPTORS } from '@/data/regulatoryData';
 
 interface RegulatoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialTab?: 'FDA' | 'EU';
+  initialTab?: 'FDA' | 'EU' | 'CARCINOGENS' | 'ALLERGENS' | 'ENDOCRINE';
 }
 
 const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, initialTab = 'FDA' }) => {
-  const [activeTab, setActiveTab] = useState<'FDA' | 'EU'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'FDA' | 'EU' | 'CARCINOGENS' | 'ALLERGENS' | 'ENDOCRINE'>(initialTab);
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 
@@ -41,6 +47,30 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
             onClick={() => setActiveTab('EU')}
           >
             EU Cosmetics Regulations
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition ${
+              activeTab === 'CARCINOGENS' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('CARCINOGENS')}
+          >
+            Carcinogens
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition ${
+              activeTab === 'ALLERGENS' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('ALLERGENS')}
+          >
+            Allergens
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition ${
+              activeTab === 'ENDOCRINE' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('ENDOCRINE')}
+          >
+            Endocrine
           </button>
         </div>
 
@@ -98,6 +128,63 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'CARCINOGENS' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="flex items-center text-lg font-semibold text-red-600 mb-3">
+                  <Skull className="w-5 h-5 mr-2" />
+                  Known & Suspected Carcinogens
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {Array.from(CARCINOGENS).map((item) => (
+                    <li key={item} className="flex items-center text-sm text-gray-700 bg-red-50 px-3 py-2 rounded border border-red-100">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                      <span className="capitalize">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ALLERGENS' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="flex items-center text-lg font-semibold text-amber-600 mb-3">
+                  <Activity className="w-5 h-5 mr-2" />
+                  Common Cosmetic Allergens
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {Array.from(ALLERGENS).map((item) => (
+                    <li key={item} className="flex items-center text-sm text-gray-700 bg-amber-50 px-3 py-2 rounded border border-amber-100">
+                      <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
+                      <span className="capitalize">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ENDOCRINE' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="flex items-center text-lg font-semibold text-purple-600 mb-3">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Endocrine Disruptors
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {Array.from(ENDOCRINE_DISRUPTORS).map((item) => (
+                    <li key={item} className="flex items-center text-sm text-gray-700 bg-purple-50 px-3 py-2 rounded border border-purple-100">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                      <span className="capitalize">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}
