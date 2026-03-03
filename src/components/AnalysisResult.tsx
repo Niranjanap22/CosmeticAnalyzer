@@ -33,6 +33,29 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
     setShowModal(true);
   };
 
+  const highRiskReasons: string[] = [];
+  if (!data.carcinogenStatus?.isClean) highRiskReasons.push("Carcinogen concern");
+  if (!data.endocrineStatus?.isClean) highRiskReasons.push("Endocrine disruptor concern");
+
+  const mediumRiskReasons: string[] = [];
+  if (!data.allergenStatus?.isClean) mediumRiskReasons.push("Allergen/irritant concern");
+  if (!data.euCompliance?.isClean) mediumRiskReasons.push("Restricted ingredient concern");
+
+  const highRiskHeading =
+    highRiskReasons.length > 0
+      ? `High Risk : ${highRiskReasons.join(", ")}`
+      : "High Risk : severe toxicity concern";
+
+  const mediumRiskHeading =
+    mediumRiskReasons.length > 0
+      ? `Medium Risk : ${mediumRiskReasons.join(", ")}`
+      : "Medium Risk : moderate irritation/sensitivity concern";
+
+  const lowRiskHeading =
+    highRiskReasons.length === 0 && mediumRiskReasons.length === 0
+      ? "Low Risk : no major carcinogen/disruptor/allergen flags"
+      : "Low Risk : relatively safer in typical cosmetic use";
+
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-purple-100 border border-purple-50 overflow-hidden animate-in fade-in slide-in-from-right-8 duration-500">
       <div className="purple-gradient p-8 text-white relative">
@@ -286,7 +309,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               <div className="bg-red-50 border border-red-100 rounded-2xl p-6">
                 <h5 className="font-bold text-lg text-red-700 mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                  High Risk
+                  {highRiskHeading}
                 </h5>
                 <div className="space-y-3">
                   {data.ingredients
@@ -326,7 +349,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6">
                 <h5 className="font-bold text-lg text-amber-700 mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                  Medium Risk
+                  {mediumRiskHeading}
                 </h5>
                 <div className="space-y-3">
                   {data.ingredients
@@ -366,7 +389,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
                 <h5 className="font-bold text-lg text-emerald-700 mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
-                  Low Risk
+                  {lowRiskHeading}
                 </h5>
                 <div className="space-y-3">
                   {data.ingredients

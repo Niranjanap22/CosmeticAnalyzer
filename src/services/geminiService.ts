@@ -11,8 +11,12 @@ Analyze this cosmetic product image carefully and return structured JSON.
 1. Identify the product name and brand.
 2. Extract the full ingredient list if visible.
 3. Identify any specific toxic or controversial compounds.
-4. For each ingredient, assign a hazard level: Low, Medium, or High.
-5. Provide a trust percentage (0–100) based on these criteria also give title as Confidence in reading product data:
+4. For each ingredient, assign a hazard level: Low, Medium, or High, based on likely reaction/effect on the human body:
+   - High: known or strongly suspected carcinogens in bracket specify cancer causing ingredients, mutagens, reproductive toxins, endocrine (hormone) disruptors, persistent bioaccumulative toxins, or ingredients with serious organ/system toxicity.
+   - Medium: common allergens/sensitizers/irritants (skin, eye, respiratory), ingredients with moderate evidence of harm, or concentration-dependent risk.
+   - Low: generally well-tolerated ingredients with low toxicity evidence in normal cosmetic use.
+   If evidence is unclear, choose the more cautious level and mention uncertainty in description.
+5. Provide a trust percentage (0–100) and title it as "Confidence in reading product data":
    - 90-100%: Crystal clear label, all ingredients visible, high confidence in accuracy
    - 70-89%: Good image quality, most ingredients visible, minor uncertainty
    - 50-69%: Moderate clarity, some ingredients unclear or partially visible
@@ -22,6 +26,7 @@ Analyze this cosmetic product image carefully and return structured JSON.
 Respond ONLY with valid JSON matching the provided schema.
 Do not include explanations outside the JSON.
 `;
+
 
   const apiKey = process.env.GEMINI_API_KEY as string | undefined;
   if (!apiKey) {
