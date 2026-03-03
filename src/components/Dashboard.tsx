@@ -1,16 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Camera, FileText, Info, Loader2, RefreshCw, Sparkles } from 'lucide-react';
+import { Upload, Camera, Info, Loader2, Sparkles } from 'lucide-react';
 import { analyzeCosmeticImage } from '@/services/geminiService';
 import { AnalysisResult } from '@/types/types';
 import { processImage } from '@/utils/imageUtils';
-import AnalysisResultView from './AnalysisResult';
 import { auth } from '@/lib/firebase';
 import { saveScan } from '@/services/historyService';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onAnalysisComplete: (result: AnalysisResult, image: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onAnalysisComplete }) => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,7 +20,6 @@ const Dashboard: React.FC = () => {
     if (file) {
       processImage(file).then((resizedImage) => {
         setImage(resizedImage);
-        setResult(null);
       }).catch(err => console.error("Image processing failed", err));
       // Reset the input value to allow re-uploading the same file
       e.target.value = '';
@@ -31,12 +32,12 @@ const Dashboard: React.FC = () => {
     try {
       const base64Data = image.split(',')[1];
       const data = await analyzeCosmeticImage(base64Data);
-      setResult(data);
 
       // Auto-save to history if user is logged in
       if (auth.currentUser) {
         saveScan(auth.currentUser.uid, data).catch(console.error);
       }
+      onAnalysisComplete(data, image);
     } catch (err) {
       console.error("Analysis failed", err);
       alert("Something went wrong during analysis. Please try a clearer image.");
@@ -47,7 +48,6 @@ const Dashboard: React.FC = () => {
 
   const reset = () => {
     setImage(null);
-    setResult(null);
     setIsAnalyzing(false);
   };
 
@@ -96,35 +96,30 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {!result && (
-                  <button
-                    disabled={isAnalyzing}
-                    onClick={startAnalysis}
-                    className="w-full purple-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-purple-200 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-6 h-6" />
-                        Reveal Ingredients
-                      </>
-                    )}
-                  </button>
-                )}
+                <button
+                  disabled={isAnalyzing}
+                  onClick={startAnalysis}
+                  className="w-full purple-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-purple-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-6 h-6" />
+                      Reveal Ingredients
+                    </>
+                  )}
+                </button>
 
-                {result && (
-                  <button
-                    onClick={reset}
-                    className="w-full bg-purple-100 text-purple-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-2"
-                  >
-                    <RefreshCw className="w-5 h-5" />
-                    New Scan
-                  </button>
-                )}
+                <button
+                  onClick={reset}
+                  className="w-full bg-purple-100 text-purple-700 py-4 rounded-2xl font-bold"
+                >
+                  Clear Image
+                </button>
               </div>
             )}
           </div>
@@ -144,15 +139,15 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="lg:col-span-7">
-          {!result && !isAnalyzing ? (
+          {!isAnalyzing ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-purple-100 rounded-3xl">
-              <FileText className="w-16 h-16 text-purple-200 mb-6" />
-              <h3 className="text-2xl font-bold text-purple-300">Analysis Preview</h3>
+              <Sparkles className="w-16 h-16 text-purple-200 mb-6" />
+              <h3 className="text-2xl font-bold text-purple-300">Ready to Analyze</h3>
               <p className="text-purple-300 max-w-sm mt-2">
-                Upload a photo to see the safety breakdown, toxic compounds, and trust scores.
+                Upload a photo, then click Reveal Ingredients. You'll be redirected to a dedicated results page.
               </p>
             </div>
-          ) : isAnalyzing ? (
+          ) : (
             <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl shadow-xl shadow-purple-50">
               <div className="relative">
                 <div className="w-24 h-24 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
@@ -180,8 +175,6 @@ const Dashboard: React.FC = () => {
                 }
               `}</style>
             </div>
-          ) : (
-            <AnalysisResultView data={result!} />
           )}
         </div>
       </div>

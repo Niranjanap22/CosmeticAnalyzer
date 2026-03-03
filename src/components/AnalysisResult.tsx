@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import RegulatoryModal from './RegulatoryModal';
+import IngredientWikiLink from "./IngredientWikiLink";
 
 interface Props {
   data: AnalysisResult;
@@ -306,120 +307,165 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
           <div className="space-y-6">
             {data.ingredients.filter((i) => i.hazardLevel === "High").length >
               0 && (
-              <div className="bg-red-50 border border-red-100 rounded-2xl p-6">
-                <h5 className="font-bold text-lg text-red-700 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                  {highRiskHeading}
-                </h5>
+              <div className="rounded-3xl p-[1px] bg-gradient-to-r from-red-300 via-rose-200 to-red-200 shadow-lg shadow-red-100/70">
+                <div className="bg-red-50/90 border border-red-100 rounded-[calc(1.5rem-1px)] p-6 backdrop-blur-sm">
+                  <div className="mb-5">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 text-[11px] uppercase tracking-wider font-black text-white shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-white/90"></span>
+                      High Risk
+                    </div>
+                    <h5 className="font-bold text-lg text-red-800 mt-3">
+                      {highRiskHeading}
+                    </h5>
+                    <p className="mt-2 text-xs font-semibold text-red-700/80 bg-red-100 border border-red-200 rounded-lg px-3 py-2 inline-block">
+                      Ingredients in this group need extra caution.
+                    </p>
+                  </div>
                 <div className="space-y-3">
                   {data.ingredients
                     .filter((i) => i.hazardLevel === "High")
                     .map((item, idx) => (
                       <div
                         key={idx}
-                        className="group border border-purple-50 hover:border-purple-200 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-purple-50/50 bg-white"
+                        className="group border border-red-100 hover:border-red-300 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-red-100/70 bg-white"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                            <span className="font-bold text-purple-900">
-                              {item.name}
-                            </span>
-                            <span className="text-xs text-purple-400 font-medium">
-                              • {item.purpose}
-                            </span>
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-red-950">
+                                  {item.name}
+                                </span>
+                                <IngredientWikiLink ingredientName={item.name} />
+                              </div>
+                            </div>
+                            <p className="text-xs text-red-600/80 font-semibold mt-1 pl-6">
+                              Purpose: {item.purpose}
+                            </p>
                           </div>
-                          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-red-50 text-red-600">
+                          <span className="self-start text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-red-100 text-red-700 border border-red-200">
                             {item.hazardLevel} Risk
                           </span>
                         </div>
                         {item.description && (
-                          <p className="text-sm text-purple-500 mt-2 leading-snug group-hover:text-purple-600">
+                          <p className="text-sm text-red-700/80 mt-2 leading-snug group-hover:text-red-700">
                             {item.description}
                           </p>
                         )}
                       </div>
                     ))}
+                </div>
                 </div>
               </div>
             )}
 
             {data.ingredients.filter((i) => i.hazardLevel === "Medium").length >
               0 && (
-              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6">
-                <h5 className="font-bold text-lg text-amber-700 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                  {mediumRiskHeading}
-                </h5>
+              <div className="rounded-3xl p-[1px] bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-200 shadow-lg shadow-amber-100/70">
+                <div className="bg-amber-50/90 border border-amber-100 rounded-[calc(1.5rem-1px)] p-6 backdrop-blur-sm">
+                  <div className="mb-5">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-3 py-1 text-[11px] uppercase tracking-wider font-black text-white shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-white/90"></span>
+                      Medium Risk
+                    </div>
+                    <h5 className="font-bold text-lg text-amber-800 mt-3">
+                      {mediumRiskHeading}
+                    </h5>
+                    <p className="mt-2 text-xs font-semibold text-amber-800/80 bg-amber-100 border border-amber-200 rounded-lg px-3 py-2 inline-block">
+                      Good for awareness, patch test if needed.
+                    </p>
+                  </div>
                 <div className="space-y-3">
                   {data.ingredients
                     .filter((i) => i.hazardLevel === "Medium")
                     .map((item, idx) => (
                       <div
                         key={idx}
-                        className="group border border-purple-50 hover:border-purple-200 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-purple-50/50 bg-white"
+                        className="group border border-amber-100 hover:border-amber-300 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-amber-100/70 bg-white"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                            <span className="font-bold text-purple-900">
-                              {item.name}
-                            </span>
-                            <span className="text-xs text-purple-400 font-medium">
-                              • {item.purpose}
-                            </span>
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-amber-950">
+                                  {item.name}
+                                </span>
+                                <IngredientWikiLink ingredientName={item.name} />
+                              </div>
+                            </div>
+                            <p className="text-xs text-amber-700/80 font-semibold mt-1 pl-6">
+                              Purpose: {item.purpose}
+                            </p>
                           </div>
-                          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-600">
+                          <span className="self-start text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200">
                             {item.hazardLevel} Risk
                           </span>
                         </div>
                         {item.description && (
-                          <p className="text-sm text-purple-500 mt-2 leading-snug group-hover:text-purple-600">
+                          <p className="text-sm text-amber-800/80 mt-2 leading-snug group-hover:text-amber-800">
                             {item.description}
                           </p>
                         )}
                       </div>
                     ))}
                 </div>
+                </div>
               </div>
             )}
 
             {data.ingredients.filter((i) => i.hazardLevel === "Low").length >
               0 && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
-                <h5 className="font-bold text-lg text-emerald-700 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
-                  {lowRiskHeading}
-                </h5>
+              <div className="rounded-3xl p-[1px] bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-200 shadow-lg shadow-emerald-100/70">
+                <div className="bg-emerald-50/90 border border-emerald-100 rounded-[calc(1.5rem-1px)] p-6 backdrop-blur-sm">
+                  <div className="mb-5">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-1 text-[11px] uppercase tracking-wider font-black text-white shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-white/90"></span>
+                      Low Risk
+                    </div>
+                    <h5 className="font-bold text-lg text-emerald-800 mt-3">
+                      {lowRiskHeading}
+                    </h5>
+                    <p className="mt-2 text-xs font-semibold text-emerald-800/80 bg-emerald-100 border border-emerald-200 rounded-lg px-3 py-2 inline-block">
+                      Typically safer ingredients for regular use.
+                    </p>
+                  </div>
                 <div className="space-y-3">
                   {data.ingredients
                     .filter((i) => i.hazardLevel === "Low")
                     .map((item, idx) => (
                       <div
                         key={idx}
-                        className="group border border-purple-50 hover:border-purple-200 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-purple-50/50 bg-white"
+                        className="group border border-emerald-100 hover:border-emerald-300 rounded-2xl p-4 transition-all hover:shadow-md hover:shadow-emerald-100/70 bg-white"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                            <span className="font-bold text-purple-900">
-                              {item.name}
-                            </span>
-                            <span className="text-xs text-purple-400 font-medium">
-                              • {item.purpose}
-                            </span>
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-emerald-950">
+                                  {item.name}
+                                </span>
+                                <IngredientWikiLink ingredientName={item.name} />
+                              </div>
+                            </div>
+                            <p className="text-xs text-emerald-700/80 font-semibold mt-1 pl-6">
+                              Purpose: {item.purpose}
+                            </p>
                           </div>
-                          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600">
+                          <span className="self-start text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200">
                             {item.hazardLevel} Risk
                           </span>
                         </div>
                         {item.description && (
-                          <p className="text-sm text-purple-500 mt-2 leading-snug group-hover:text-purple-600">
+                          <p className="text-sm text-emerald-800/80 mt-2 leading-snug group-hover:text-emerald-800">
                             {item.description}
                           </p>
                         )}
                       </div>
                     ))}
+                </div>
                 </div>
               </div>
             )}
