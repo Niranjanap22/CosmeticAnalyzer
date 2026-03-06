@@ -20,53 +20,60 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-sm p-4">
+      <style>{`
+        @keyframes modalRise {
+          from { opacity: 0; transform: translateY(14px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+      <div className="relative w-full max-w-3xl max-h-[84vh] flex flex-col overflow-hidden rounded-[2rem] border border-white/60 bg-white/65 backdrop-blur-2xl shadow-[0_28px_80px_rgba(49,32,38,0.35)] animate-[modalRise_260ms_ease-out]">
+        <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(230,182,196,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(230,182,196,0.12)_1px,transparent_1px)] [background-size:40px_40px]" />
         {/* Header */}
-        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
-          <h2 className="text-xl font-bold text-gray-800">Cosmetic Regulatory Standards</h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded-full transition">
-            <X className="w-6 h-6 text-gray-500" />
+        <div className="relative z-10 p-5 border-b border-white/60 flex justify-between items-center bg-white/40">
+          <h2 className="text-2xl text-[#2f262a]" style={{ fontFamily: "'Playfair Display', serif" }}>Cosmetic Regulatory Standards</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/70 rounded-full transition">
+            <X className="w-5 h-5 text-[#7f6c73]" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="relative z-10 flex border-b border-white/60 overflow-x-auto">
           <button
-            className={`flex-1 py-3 font-medium text-sm transition ${
-              activeTab === 'FDA' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            className={`flex-1 py-3 font-medium text-sm transition-all duration-300 ${
+              activeTab === 'FDA' ? 'text-rose-600 bg-rose-50/60 border-b-2 border-rose-400' : 'text-[#75656d] hover:bg-white/60'
             }`}
             onClick={() => setActiveTab('FDA')}
           >
             FDA (USA) Regulations
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition ${
-              activeTab === 'EU' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            className={`flex-1 py-3 font-medium text-sm transition-all duration-300 ${
+              activeTab === 'EU' ? 'text-rose-600 bg-rose-50/60 border-b-2 border-rose-400' : 'text-[#75656d] hover:bg-white/60'
             }`}
             onClick={() => setActiveTab('EU')}
           >
             EU Cosmetics Regulations
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition ${
-              activeTab === 'CARCINOGENS' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            className={`flex-1 py-3 font-medium text-sm transition-all duration-300 ${
+              activeTab === 'CARCINOGENS' ? 'text-rose-600 bg-rose-50/60 border-b-2 border-rose-400' : 'text-[#75656d] hover:bg-white/60'
             }`}
             onClick={() => setActiveTab('CARCINOGENS')}
           >
             Carcinogens
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition ${
-              activeTab === 'ALLERGENS' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            className={`flex-1 py-3 font-medium text-sm transition-all duration-300 ${
+              activeTab === 'ALLERGENS' ? 'text-rose-600 bg-rose-50/60 border-b-2 border-rose-400' : 'text-[#75656d] hover:bg-white/60'
             }`}
             onClick={() => setActiveTab('ALLERGENS')}
           >
             Allergens
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition ${
-              activeTab === 'ENDOCRINE' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
+            className={`flex-1 py-3 font-medium text-sm transition-all duration-300 ${
+              activeTab === 'ENDOCRINE' ? 'text-rose-600 bg-rose-50/60 border-b-2 border-rose-400' : 'text-[#75656d] hover:bg-white/60'
             }`}
             onClick={() => setActiveTab('ENDOCRINE')}
           >
@@ -75,7 +82,7 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="relative z-10 flex-1 overflow-y-auto p-6">
           {activeTab === 'FDA' && (
             <div className="space-y-6">
               <div>
@@ -83,7 +90,7 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
                   <ShieldAlert className="w-5 h-5 mr-2" />
                   FDA Banned & Restricted Ingredients
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-[#72616a] mb-4">
                   The FDA prohibits or restricts a specific set of ingredients in cosmetics.
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -173,14 +180,14 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
           {activeTab === 'ENDOCRINE' && (
             <div className="space-y-6">
               <div>
-                <h3 className="flex items-center text-lg font-semibold text-purple-600 mb-3">
+                <h3 className="flex items-center text-lg font-semibold text-rose-600 mb-3">
                   <Zap className="w-5 h-5 mr-2" />
                   Endocrine Disruptors
                 </h3>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {Array.from(ENDOCRINE_DISRUPTORS).map((item) => (
-                    <li key={item} className="flex items-center text-sm text-gray-700 bg-purple-50 px-3 py-2 rounded border border-purple-100">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                    <li key={item} className="flex items-center text-sm text-gray-700 bg-rose-50 px-3 py-2 rounded border border-rose-100">
+                      <span className="w-2 h-2 bg-rose-400 rounded-full mr-2"></span>
                       <span className="capitalize">{item}</span>
                     </li>
                   ))}
@@ -191,7 +198,7 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t bg-gray-50 text-center text-xs text-gray-500">
+        <div className="relative z-10 p-4 border-t border-white/60 bg-white/40 text-center text-xs text-[#75656d]">
           Data sourced from FDA Regulations & EU Cosmetics Regulation (EC) No 1223/2009
         </div>
       </div>

@@ -107,12 +107,34 @@ Do not include explanations outside the JSON.
     safetyScore = (1 - (totalRisk / maxRisk)) * 100;
   }
 
+  // Keep toxicCompounds consistent with High Risk ingredients.
+  // Any ingredient marked High is force-included in toxicCompounds.
+  const highRiskIngredientNames: string[] = Array.isArray(result.ingredients)
+    ? result.ingredients
+        .filter((ing: any) => (ing.hazardLevel || "").toLowerCase().includes("high"))
+        .map((ing: any) => (ing.name || "").trim())
+        .filter((name: string) => name.length > 0)
+    : [];
+
+  const modelToxicCompounds: string[] = Array.isArray(result.toxicCompounds)
+    ? result.toxicCompounds.map((c: any) => String(c).trim()).filter((c: string) => c.length > 0)
+    : [];
+
+  // Case-insensitive dedupe while preserving first-seen casing.
+  const mergedToxicMap = new Map<string, string>();
+  [...modelToxicCompounds, ...highRiskIngredientNames].forEach((name) => {
+    const key = name.toLowerCase();
+    if (!mergedToxicMap.has(key)) mergedToxicMap.set(key, name);
+  });
+  const mergedToxicCompounds = Array.from(mergedToxicMap.values());
+
   // Run Regulatory Compliance Checks
   const ingredientNames = result.ingredients ? result.ingredients.map((i: any) => i.name) : [];
   const compliance = checkCompliance(ingredientNames);
 
   return {
     ...result,
+    toxicCompounds: mergedToxicCompounds,
     overallSafetyScore: Number(safetyScore.toFixed(2)),
     fdaCompliance: compliance.fda,
     euCompliance: compliance.eu,

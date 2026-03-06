@@ -60,66 +60,81 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-purple-50/30">
-      <nav className="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
-        <div className="flex items-center gap-2 cursor-pointer">
-          <div className="purple-gradient p-2 rounded-xl shadow-lg shadow-purple-200">
-            <Sparkles className="text-white w-6 h-6" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#fdf9fa] via-[#fcf6f8] to-[#f9f2f4]">
+      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(229,186,198,0.22)_1px,transparent_1px),linear-gradient(to_bottom,rgba(229,186,198,0.22)_1px,transparent_1px)] [background-size:48px_48px]" />
+      <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_120px_rgba(73,49,57,0.08)]" />
+
+      <nav className="relative z-40 px-4 md:px-7 py-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 cursor-pointer min-w-[190px]">
+          <div className="rounded-xl bg-white/70 border border-white/80 px-3 py-2 shadow-sm backdrop-blur-xl">
+            <Sparkles className="text-rose-500 w-5 h-5" />
           </div>
-          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-600 tracking-tight">
-            CosmoBot
+          <span className="text-4xl tracking-tight text-[#21171b]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            COSMOBOT
           </span>
         </div>
 
         {user && (
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-semibold text-purple-900">{user.email?.split('@')[0]}</span>
-              <span className="text-xs text-purple-500 uppercase font-bold tracking-widest">Premium Member</span>
-            </div>
+          <div className="flex-1 flex items-center justify-between gap-4">
+            <div className="hidden lg:block min-w-[170px]" />
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-2 p-1 bg-purple-100 rounded-full border border-purple-200">
+            <div className="flex items-center gap-2 p-1 bg-white/75 rounded-full border border-white/80 backdrop-blur-xl shadow-sm">
               <button
                 onClick={() => setView('dashboard')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'dashboard' ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-500 hover:bg-purple-50/50'}`}
+                className={`flex items-center gap-2 px-7 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  view === 'dashboard'
+                    ? 'bg-white text-[#2b1f24] shadow-sm'
+                    : 'text-[#6d5f65] hover:bg-white/70 hover:-translate-y-0.5'
+                }`}
               >
                 <Home className="w-4 h-4" />
-                <span className="hidden md:inline">Dashboard</span>
+                <span>Dashboard</span>
               </button>
               <button
                 onClick={() => setView('results')}
                 disabled={!latestResult}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-7 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                   view === 'results'
-                    ? 'bg-white text-purple-700 shadow-sm'
-                    : 'text-purple-500 hover:bg-purple-50/50'
+                    ? 'bg-white text-[#2b1f24] shadow-sm'
+                    : 'text-[#6d5f65] hover:bg-white/70 hover:-translate-y-0.5'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <BarChart3 className="w-4 h-4" />
-                <span className="hidden md:inline">Results</span>
+                <span>Results</span>
               </button>
               <button
                 onClick={() => setView('history')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'history' ? 'bg-white text-purple-700 shadow-sm' : 'text-purple-500 hover:bg-purple-50/50'}`}
+                className={`flex items-center gap-2 px-7 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  view === 'history'
+                    ? 'bg-white text-[#2b1f24] shadow-sm'
+                    : 'text-[#6d5f65] hover:bg-white/70 hover:-translate-y-0.5'
+                }`}
               >
                 <History className="w-4 h-4" />
-                <span className="hidden md:inline">History</span>
+                <span>History</span>
               </button>
             </div>
 
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-200 text-purple-700 hover:bg-purple-100 transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="text-sm font-medium hidden md:inline">Logout</span>
-            </button>
+            <div className="flex items-center gap-3 min-w-[220px] justify-end">
+              <div className="hidden md:flex flex-col items-end mr-1">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[#8e7f86]">Partner Portal</span>
+                <span className="text-xs text-[#786a71] font-medium">
+                  {user.email?.split('@')[0]} • Premium Member
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/80 bg-white/70 backdrop-blur-xl text-[#4f3f46] hover:bg-white transition-all duration-300 hover:-translate-y-0.5"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
+            </div>
           </div>
         )}
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8">
         {view === 'dashboard' ? (
           <Dashboard onAnalysisComplete={handleAnalysisComplete} />
         ) : view === 'results' ? (
@@ -133,10 +148,17 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="mt-20 border-t border-purple-100 py-10 text-center">
-        <p className="text-purple-400 text-sm">
-          &copy; 2024 CosmoBot AI. Empowering consumers with radical transparency.
-        </p>
+      <footer className="relative z-10 mt-10 border-t border-rose-100/70 py-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-[#9b8b92] text-xs tracking-[0.22em] uppercase">
+            © 2024 Cosmobot Biotech • Luxury Analytics
+          </p>
+          <div className="flex items-center gap-10 text-xs tracking-[0.2em] uppercase text-[#9b8b92]">
+            <span>Privacy</span>
+            <span>Terms</span>
+            <span>Lab Access</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

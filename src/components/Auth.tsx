@@ -47,8 +47,7 @@ const AuthScreen: React.FC = () => {
       title: 'Science',
       body:
         'Our risk model checks ingredients against carcinogen, allergen, and endocrine-disruptor references, and maps findings to FDA banned lists plus EU banned/restricted standards.',
-      badge: 'FDA + EU Standards'
-      ,
+      badge: 'FDA + EU Standards',
       bullets: [
         'FDA Compliance Check: Flags ingredients that appear in FDA banned references used by this project.',
         'EU Compliance Check: Separately identifies EU banned and EU restricted ingredients with relevant limit notes.',
@@ -255,9 +254,9 @@ const AuthScreen: React.FC = () => {
         <div className="mx-auto mt-14 max-w-6xl">
           <section
             id={activeSection}
-            className="rounded-3xl border border-white/80 bg-white/60 backdrop-blur-sm p-6 md:p-8 shadow-lg shadow-zinc-900/5"
+            className="rounded-3xl border border-white/80 bg-white/70 backdrop-blur-sm p-6 md:p-8 shadow-lg shadow-zinc-900/5"
           >
-            <h3 className="text-2xl font-bold text-slate-900">{sectionContent[activeSection].title}</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-900">{sectionContent[activeSection].title}</h3>
             {sectionContent[activeSection].badge && (
               <span className="mt-2 inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-500">
                 {sectionContent[activeSection].badge}
