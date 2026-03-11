@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { AnalysisResult } from "@/types/types";
+import { AnalysisResult, ScoreBreakdown } from "@/types/types";
 import { checkCompliance } from "./regulatoryService";
 
 const LOW_RISK_INGREDIENTS = [
@@ -118,7 +118,7 @@ Do not include explanations outside the JSON.
     });
   }
 
-  // Calculate the Overall Safety Score deterministically
+  // Calculate ingredient-level base safety score.
   let L = 0, M = 0, H = 0;
   
   if (result.ingredients && Array.isArray(result.ingredients)) {
@@ -131,13 +131,10 @@ Do not include explanations outside the JSON.
   }
 
   const total = L + M + H;
-  let safetyScore = 0;
-
-  if (total > 0) {
-    const totalRisk = (1 * L) + (3 * M) + (5 * H);
-    const maxRisk = 5 * total;
-    safetyScore = (1 - (totalRisk / maxRisk)) * 100;
-  }
+  const scoreWeights = { low: 0.5, medium: 2.5, high: 5 };
+  const totalRisk = (scoreWeights.low * L) + (scoreWeights.medium * M) + (scoreWeights.high * H);
+  const maxRisk = 5 * total;
+  const baseScore = total > 0 ? (1 - (totalRisk / maxRisk)) * 100 : 0;
 
   // Keep toxicCompounds consistent with High Risk ingredients.
   // Any ingredient marked High is force-included in toxicCompounds.
@@ -166,14 +163,76 @@ Do not include explanations outside the JSON.
   const ingredientNames = result.ingredients ? result.ingredients.map((i: any) => i.name) : [];
   const compliance = checkCompliance(ingredientNames);
 
+  const penaltyWeights = {
+    fda: 8,
+    eu: 6,
+    carcinogen: 5,
+    endocrine: 4,
+    allergen: 2
+  };
+
+  const penalties: ScoreBreakdown["penalties"] = {
+    fda: {
+      count: compliance.fda.issues.length,
+      weight: penaltyWeights.fda,
+      total: compliance.fda.issues.length * penaltyWeights.fda
+    },
+    eu: {
+      count: compliance.eu.issues.length,
+      weight: penaltyWeights.eu,
+      total: compliance.eu.issues.length * penaltyWeights.eu
+    },
+    carcinogen: {
+      count: compliance.carcinogens.issues.length,
+      weight: penaltyWeights.carcinogen,
+      total: compliance.carcinogens.issues.length * penaltyWeights.carcinogen
+    },
+    endocrine: {
+      count: compliance.endocrine.issues.length,
+      weight: penaltyWeights.endocrine,
+      total: compliance.endocrine.issues.length * penaltyWeights.endocrine
+    },
+    allergen: {
+      count: compliance.allergens.issues.length,
+      weight: penaltyWeights.allergen,
+      total: compliance.allergens.issues.length * penaltyWeights.allergen
+    }
+  };
+
+  const totalPenalty =
+    penalties.fda.total +
+    penalties.eu.total +
+    penalties.carcinogen.total +
+    penalties.endocrine.total +
+    penalties.allergen.total;
+
+  const rawScore = Number((baseScore - totalPenalty).toFixed(2));
+  const finalScore = Number(Math.max(0, Math.min(100, rawScore)).toFixed(2));
+
+  const scoreBreakdown: ScoreBreakdown = {
+    ingredientCounts: {
+      low: L,
+      medium: M,
+      high: H,
+      total
+    },
+    baseScore: Number(baseScore.toFixed(2)),
+    penalties,
+    totalPenalty: Number(totalPenalty.toFixed(2)),
+    rawScore,
+    clampedScore: finalScore,
+    finalScore
+  };
+
   return {
     ...result,
     toxicCompounds: mergedToxicCompounds,
-    overallSafetyScore: Number(safetyScore.toFixed(2)),
+    overallSafetyScore: finalScore,
     fdaCompliance: compliance.fda,
     euCompliance: compliance.eu,
     carcinogenStatus: compliance.carcinogens,
     allergenStatus: compliance.allergens,
-    endocrineStatus: compliance.endocrine
+    endocrineStatus: compliance.endocrine,
+    scoreBreakdown
   };
 };

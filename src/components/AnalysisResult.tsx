@@ -118,6 +118,11 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
 
   const knownCarcinogenMatches = getMatchedIngredients(KNOWN_CARCINOGENS);
   const suspectedCarcinogenMatches = getMatchedIngredients(SUSPECTED_CARCINOGENS);
+  const scoreWeights = {
+    low: 0.5,
+    medium: 2.5,
+    high: 5
+  };
 
   const fallbackScoreBreakdown = (() => {
     const ingredientCounts = {
@@ -128,19 +133,19 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
     };
 
     const totalRisk =
-      ingredientCounts.low * 1 +
-      ingredientCounts.medium * 3 +
-      ingredientCounts.high * 5;
+      ingredientCounts.low * scoreWeights.low +
+      ingredientCounts.medium * scoreWeights.medium +
+      ingredientCounts.high * scoreWeights.high;
     const maxRisk = ingredientCounts.total > 0 ? ingredientCounts.total * 5 : 0;
     const baseScore =
       maxRisk > 0 ? Number(((1 - totalRisk / maxRisk) * 100).toFixed(2)) : 0;
 
     const penaltyWeights = {
-      fda: 20,
-      eu: 20,
-      carcinogen: 10,
-      endocrine: 7,
-      allergen: 4
+      fda: 8,
+      eu: 6,
+      carcinogen: 5,
+      endocrine: 4,
+      allergen: 2
     };
     const penalties = {
       fda: {
@@ -637,14 +642,14 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                     Formula: Final Score = clamp(Base Score - Total Penalty, 0, 100)
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    Base Score = (1 - ((1xLow + 3xMedium + 5xHigh) / (5xTotal Ingredients))) x 100
+                    Base Score = (1 - ((0.5xLow + 2.5xMedium + 5xHigh) / (5xTotal Ingredients))) x 100
                   </p>
                   <div className="flex justify-between">
-                    <span>Weighted risk (1xL + 3xM + 5xH)</span>
+                    <span>Weighted risk (0.5xL + 2.5xM + 5xH)</span>
                     <span className="font-semibold">
-                      {scoreBreakdown.ingredientCounts.low * 1 +
-                        scoreBreakdown.ingredientCounts.medium * 3 +
-                        scoreBreakdown.ingredientCounts.high * 5}
+                      {scoreBreakdown.ingredientCounts.low * scoreWeights.low +
+                        scoreBreakdown.ingredientCounts.medium * scoreWeights.medium +
+                        scoreBreakdown.ingredientCounts.high * scoreWeights.high}
                     </span>
                   </div>
                   <div className="flex justify-between">

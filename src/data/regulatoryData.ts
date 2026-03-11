@@ -168,7 +168,6 @@ export const SUSPECTED_CARCINOGENS = new Set([
   "catechol",
   "pyrogallol",
   "acrylamide",
-  "bht",
   "methylene chloride",
   "cobalt dichloride",
   "cobalt sulphate",

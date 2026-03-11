@@ -10,6 +10,33 @@ export interface RegulatoryStatus {
   issues: string[];
 }
 
+export interface ScorePenalty {
+  count: number;
+  weight: number;
+  total: number;
+}
+
+export interface ScoreBreakdown {
+  ingredientCounts: {
+    low: number;
+    medium: number;
+    high: number;
+    total: number;
+  };
+  baseScore: number;
+  penalties: {
+    fda: ScorePenalty;
+    eu: ScorePenalty;
+    carcinogen: ScorePenalty;
+    endocrine: ScorePenalty;
+    allergen: ScorePenalty;
+  };
+  totalPenalty: number;
+  rawScore: number;
+  clampedScore: number;
+  finalScore: number;
+}
+
 export interface AnalysisResult {
   productName: string;
   brand: string;
@@ -24,6 +51,7 @@ export interface AnalysisResult {
   carcinogenStatus: RegulatoryStatus;
   allergenStatus: RegulatoryStatus;
   endocrineStatus: RegulatoryStatus;
+  scoreBreakdown?: ScoreBreakdown;
 }
 
 export interface UserState {
