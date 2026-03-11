@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShieldAlert, AlertTriangle, Skull, Activity, Zap } from 'lucide-react';
-import { FDA_BANNED, EU_BANNED, EU_RESTRICTED, CARCINOGENS, ALLERGENS, ENDOCRINE_DISRUPTORS } from '@/data/regulatoryData';
+import {
+  FDA_BANNED,
+  EU_BANNED,
+  EU_RESTRICTED,
+  KNOWN_CARCINOGENS,
+  SUSPECTED_CARCINOGENS,
+  ALLERGENS,
+  ENDOCRINE_DISRUPTORS
+} from '@/data/regulatoryData';
 
 interface RegulatoryModalProps {
   isOpen: boolean;
@@ -140,16 +148,31 @@ const RegulatoryModal: React.FC<RegulatoryModalProps> = ({ isOpen, onClose, init
           )}
 
           {activeTab === 'CARCINOGENS' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
                 <h3 className="flex items-center text-lg font-semibold text-red-600 mb-3">
                   <Skull className="w-5 h-5 mr-2" />
-                  Known & Suspected Carcinogens
+                  Known Carcinogens
                 </h3>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {Array.from(CARCINOGENS).map((item) => (
+                  {Array.from(KNOWN_CARCINOGENS).map((item) => (
                     <li key={item} className="flex items-center text-sm text-gray-700 bg-red-50 px-3 py-2 rounded border border-red-100">
                       <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                      <span className="capitalize">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="flex items-center text-lg font-semibold text-amber-700 mb-3">
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  Suspected Carcinogens
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {Array.from(SUSPECTED_CARCINOGENS).map((item) => (
+                    <li key={item} className="flex items-center text-sm text-gray-700 bg-amber-50 px-3 py-2 rounded border border-amber-100">
+                      <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
                       <span className="capitalize">{item}</span>
                     </li>
                   ))}

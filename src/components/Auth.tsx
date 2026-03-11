@@ -278,16 +278,47 @@ const AuthScreen: React.FC = () => {
               <div className="mt-5 rounded-2xl border border-rose-200 bg-white/80 p-4">
                 <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-rose-500">How Safety Score Is Calculated</h4>
                 <p className="mt-2 text-sm text-slate-600">
-                  For each ingredient, hazard levels are counted as <strong>Low (L)</strong>, <strong>Medium (M)</strong>, and <strong>High (H)</strong>.
-                  Weighted risk is then computed with higher penalty for higher hazard.
+                  The score uses a deterministic (rule-based) model. It is not random and not a hidden AI number.
                 </p>
+                <ol className="mt-3 space-y-2 text-sm text-slate-600 list-decimal list-inside">
+                  <li>
+                    We count ingredient hazard levels: <strong>Low (L)</strong>, <strong>Medium (M)</strong>, <strong>High (H)</strong>.
+                  </li>
+                  <li>
+                    We compute a base score from hazard mix. More High ingredients reduce the score faster than Medium/Low.
+                  </li>
+                  <li>
+                    We subtract fixed penalties for regulatory/risk matches found in the scan.
+                  </li>
+                  <li>
+                    Final score is clamped between <strong>0 and 100</strong> and rounded to 2 decimals.
+                  </li>
+                </ol>
                 <div className="mt-3 rounded-xl bg-slate-900 text-slate-100 p-3 text-xs md:text-sm font-mono overflow-x-auto">
-                  totalRisk = (1 x L) + (3 x M) + (5 x H)<br />
-                  maxRisk = 5 x (L + M + H)<br />
-                  safetyScore = (1 - totalRisk / maxRisk) x 100
+                  baseScore = (1 - ((1xL + 3xM + 5xH) / (5x(L+M+H)))) x 100<br />
+                  regulatoryPenalty = 20xFDA + 20xEU + 10xCarcinogen + 7xEndocrine + 4xAllergen<br />
+                  finalSafetyScore = clamp(baseScore - regulatoryPenalty, 0, 100)
+                </div>
+                <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/50 p-3">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-rose-500">Penalty Weights</p>
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-slate-600">
+                    <p>FDA banned match: <strong>-20 each</strong></p>
+                    <p>EU banned/restricted match: <strong>-20 each</strong></p>
+                    <p>Carcinogen match: <strong>-10 each</strong></p>
+                    <p>Endocrine disruptor match: <strong>-7 each</strong></p>
+                    <p>Allergen match: <strong>-4 each</strong></p>
+                  </div>
+                </div>
+                <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Simple Example</p>
+                  <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                    If a product has 6 Low, 2 Medium, 1 High ingredients, base score is high.
+                    If it also has 1 FDA match and 2 allergen matches, penalties are applied
+                    (20 + 8), then the final score is clamped to stay in 0-100.
+                  </p>
                 </div>
                 <p className="mt-3 text-xs text-slate-500">
-                  Result is rounded to 2 decimals. Higher High/Medium counts reduce the score faster than Low.
+                  Result is rounded to 2 decimals. High-risk ingredients and regulatory flags reduce the score most.
                 </p>
               </div>
             )}

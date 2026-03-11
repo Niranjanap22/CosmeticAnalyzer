@@ -164,7 +164,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onAnalysisComplete }) => {
                   Why analyze?
                 </h3>
                 <p className="text-[#7a686f] text-sm leading-relaxed">
-                  Many cosmetics contain endocrine disruptors and allergens that are not clearly labeled for toxicity. This analysis cross-references ingredient intelligence and regulatory watchlists to deliver practical risk context.
+                  Many cosmetics contain carcinogens(cancer causing ingredients), endocrine disruptors and allergens that are not clearly labeled for toxicity. This analysis cross-references ingredient intelligence and regulatory watchlists to deliver practical risk context.
                 </p>
               </div>
             </div>
@@ -190,7 +190,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onAnalysisComplete }) => {
                 </div>
                 <h3 className="text-4xl text-[#2f262a] mt-8" style={{ fontFamily: "'Playfair Display', serif" }}>Thinking Deeply...</h3>
                 <p className="text-[#7c6870] mt-2 max-w-md">
-                  Our AI is scanning ingredient databases and compliance references to build your personalized safety profile.
+                  Our AI is scanning ingredient data and compliance references to build your personalized safety profile.
                 </p>
 
                 <div className="mt-8 space-y-4 w-full max-w-xs">

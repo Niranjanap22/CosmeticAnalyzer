@@ -122,27 +122,43 @@ export const EU_RESTRICTED = new Map<string, string>([
   ["nitrosamines", "Max 50 µg/kg"],
 ]);
 
-export const CARCINOGENS = new Set([
+export const KNOWN_CARCINOGENS = new Set([
   "formaldehyde",
   "coal tar",
   "coal tars",
   "benzene",
   "ethylene oxide",
+  "asbestos",
+  "arsenic",
+  "cadmium",
+  "chromium",
+  "1-naphthylamine",
+  "2-naphthylamine",
+  "nickel monoxide",
+  "dinickel trioxide",
+  "nickel dioxide",
+  "nickel sulphide",
+  "tetracarbonylnickel",
+  "crystal violet",
+  "basic violet 3",
+  "rhodamine b",
+  "basic violet 10",
+  "anthracene oil",
+  "pah",
+  "polycyclic aromatic hydrocarbons"
+]);
+
+export const SUSPECTED_CARCINOGENS = new Set([
   "1,4-dioxane",
   "dioxane",
   "safrole",
   "potassium bromate",
   "mineral oil",
-  "cadmium",
-  "chromium",
-  "arsenic",
   "aniline",
   "toluidine",
   "toluene-2,4-diamine",
   "toluene-2,6-diamine",
   "o-phenylenediamine",
-  "1-naphthylamine",
-  "2-naphthylamine",
   "2-naphthol",
   "4-amino-2-nitrophenol",
   "2-amino-4-nitrophenol",
@@ -153,29 +169,24 @@ export const CARCINOGENS = new Set([
   "pyrogallol",
   "acrylamide",
   "bht",
-  "asbestos",
   "methylene chloride",
   "cobalt dichloride",
   "cobalt sulphate",
-  "nickel monoxide",
-  "dinickel trioxide",
-  "nickel dioxide",
-  "nickel sulphide",
-  "tetracarbonylnickel",
   "beryllium",
   "phenolphthalein",
-  "crystal violet",
-  "basic violet 3",
-  "rhodamine b",
-  "basic violet 10",
   "pigment orange 5",
-  "anthracene oil",
   "diethanolamine",
   "dea",
-  "nitrosamines",
-  "pah",
-  "polycyclic aromatic hydrocarbons"
+  "nitrosamines"
 ]);
+
+// Backward-compatible combined set used across existing UI/services.
+export const CARCINOGENS = new Set([
+  ...KNOWN_CARCINOGENS,
+  ...SUSPECTED_CARCINOGENS
+]);
+
+
 
 export const ALLERGENS = new Set([
   "linalool",

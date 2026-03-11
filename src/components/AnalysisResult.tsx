@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnalysisResult } from "@/types/types";
+import { AnalysisResult, IngredientInfo } from "@/types/types";
 import {
   AlertCircle,
   List,
@@ -16,7 +16,8 @@ import {
   FDA_BANNED,
   EU_BANNED,
   EU_RESTRICTED,
-  CARCINOGENS,
+  KNOWN_CARCINOGENS,
+  SUSPECTED_CARCINOGENS,
   ALLERGENS,
   ENDOCRINE_DISRUPTORS
 } from "@/data/regulatoryData";
@@ -26,7 +27,13 @@ interface Props {
 }
 
 const AnalysisResultView: React.FC<Props> = ({ data }) => {
+  const CARCINOGEN_WATCHLIST = new Set([
+    ...KNOWN_CARCINOGENS,
+    ...SUSPECTED_CARCINOGENS
+  ]);
+
   const [showModal, setShowModal] = useState(false);
+  const [showScoreMath, setShowScoreMath] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     high: true,
     medium: true,
@@ -60,21 +67,133 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
     return "unknown";
   };
 
+  const matchesIngredientToSet = (ingredientName: string, set: Set<string>) => {
+    const normalizedIngredient = (ingredientName || "").toLowerCase().trim();
+    for (const item of set) {
+      if (
+        normalizedIngredient.includes(item) ||
+        item.includes(normalizedIngredient)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const isDualWatchlistHigh = (ingredientName: string) =>
+    matchesIngredientToSet(ingredientName, ENDOCRINE_DISRUPTORS) &&
+    matchesIngredientToSet(ingredientName, CARCINOGEN_WATCHLIST);
+
+  const getEffectiveHazardLevel = (ingredient: IngredientInfo) => {
+    if (isDualWatchlistHigh(ingredient.name)) return "high";
+    return normalizeHazardLevel(ingredient.hazardLevel);
+  };
+
   const highIngredients = data.ingredients.filter(
-    (i) => normalizeHazardLevel(i.hazardLevel) === "high"
+    (i) => getEffectiveHazardLevel(i) === "high"
   );
   const mediumIngredients = data.ingredients.filter(
-    (i) => normalizeHazardLevel(i.hazardLevel) === "medium"
+    (i) => getEffectiveHazardLevel(i) === "medium"
   );
   const lowIngredients = data.ingredients.filter(
-    (i) => normalizeHazardLevel(i.hazardLevel) === "low"
+    (i) => getEffectiveHazardLevel(i) === "low"
   );
-  const hasRegulatoryMatches =
-    !data.fdaCompliance?.isClean ||
-    !data.euCompliance?.isClean ||
-    !data.carcinogenStatus?.isClean ||
-    !data.allergenStatus?.isClean ||
-    !data.endocrineStatus?.isClean;
+
+  const getMatchedIngredients = (set: Set<string>): string[] => {
+    const matches = new Set<string>();
+    for (const ingredient of data.ingredients) {
+      const normalizedIngredient = (ingredient.name || "").toLowerCase().trim();
+      for (const item of set) {
+        if (
+          normalizedIngredient.includes(item) ||
+          item.includes(normalizedIngredient)
+        ) {
+          matches.add(ingredient.name);
+          break;
+        }
+      }
+    }
+    return Array.from(matches);
+  };
+
+  const knownCarcinogenMatches = getMatchedIngredients(KNOWN_CARCINOGENS);
+  const suspectedCarcinogenMatches = getMatchedIngredients(SUSPECTED_CARCINOGENS);
+
+  const fallbackScoreBreakdown = (() => {
+    const ingredientCounts = {
+      low: lowIngredients.length,
+      medium: mediumIngredients.length,
+      high: highIngredients.length,
+      total: data.ingredients.length
+    };
+
+    const totalRisk =
+      ingredientCounts.low * 1 +
+      ingredientCounts.medium * 3 +
+      ingredientCounts.high * 5;
+    const maxRisk = ingredientCounts.total > 0 ? ingredientCounts.total * 5 : 0;
+    const baseScore =
+      maxRisk > 0 ? Number(((1 - totalRisk / maxRisk) * 100).toFixed(2)) : 0;
+
+    const penaltyWeights = {
+      fda: 20,
+      eu: 20,
+      carcinogen: 10,
+      endocrine: 7,
+      allergen: 4
+    };
+    const penalties = {
+      fda: {
+        count: data.fdaCompliance?.issues?.length || 0,
+        weight: penaltyWeights.fda,
+        total: (data.fdaCompliance?.issues?.length || 0) * penaltyWeights.fda
+      },
+      eu: {
+        count: data.euCompliance?.issues?.length || 0,
+        weight: penaltyWeights.eu,
+        total: (data.euCompliance?.issues?.length || 0) * penaltyWeights.eu
+      },
+      carcinogen: {
+        count: data.carcinogenStatus?.issues?.length || 0,
+        weight: penaltyWeights.carcinogen,
+        total:
+          (data.carcinogenStatus?.issues?.length || 0) * penaltyWeights.carcinogen
+      },
+      endocrine: {
+        count: data.endocrineStatus?.issues?.length || 0,
+        weight: penaltyWeights.endocrine,
+        total:
+          (data.endocrineStatus?.issues?.length || 0) * penaltyWeights.endocrine
+      },
+      allergen: {
+        count: data.allergenStatus?.issues?.length || 0,
+        weight: penaltyWeights.allergen,
+        total:
+          (data.allergenStatus?.issues?.length || 0) * penaltyWeights.allergen
+      }
+    };
+    const totalPenalty =
+      penalties.fda.total +
+      penalties.eu.total +
+      penalties.carcinogen.total +
+      penalties.endocrine.total +
+      penalties.allergen.total;
+
+    const rawScore = Number((baseScore - totalPenalty).toFixed(2));
+    const finalScore = Number(Math.max(0, Math.min(100, rawScore)).toFixed(2));
+
+    return {
+      ingredientCounts,
+      baseScore,
+      penalties,
+      totalPenalty,
+      rawScore,
+      clampedScore: finalScore,
+      finalScore
+    };
+  })();
+
+  const scoreBreakdown = data.scoreBreakdown || fallbackScoreBreakdown;
 
   const highRiskReasons: string[] = [];
   if (!data.carcinogenStatus?.isClean) highRiskReasons.push("Carcinogen concern");
@@ -118,7 +237,8 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
         break;
       }
     }
-    if (matchesAny(CARCINOGENS)) basis.push("Carcinogen watchlist");
+    if (matchesAny(KNOWN_CARCINOGENS)) basis.push("Known carcinogen list");
+    if (matchesAny(SUSPECTED_CARCINOGENS)) basis.push("Suspected carcinogen list");
     if (matchesAny(ALLERGENS)) basis.push("Allergen watchlist");
     if (matchesAny(ENDOCRINE_DISRUPTORS)) basis.push("Endocrine disruptor watchlist");
 
@@ -128,6 +248,69 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
 
     return basis;
   };
+
+  const getToxicWhyThisLevel = (compound: string): string => {
+    const normalized = compound.toLowerCase().trim();
+
+    for (const ingredient of data.ingredients) {
+      const ingredientName = (ingredient.name || "").toLowerCase().trim();
+      if (
+        normalized.includes(ingredientName) ||
+        ingredientName.includes(normalized)
+      ) {
+        if (ingredient.description && ingredient.description.trim().length > 0) {
+          return ingredient.description.trim();
+        }
+        break;
+      }
+    }
+
+    return getToxicBasis(compound).join(", ");
+  };
+
+  const getToxicRiskLevel = (compound: string): "High" | "Medium" | "Low" => {
+    const normalized = compound.toLowerCase().trim();
+
+    // 1) Prefer explicit hazard level from ingredient-level classification.
+    for (const ingredient of data.ingredients) {
+      const ingredientName = (ingredient.name || "").toLowerCase().trim();
+      if (normalized.includes(ingredientName) || ingredientName.includes(normalized)) {
+        const level = normalizeHazardLevel(ingredient.hazardLevel);
+        if (level === "high") return "High";
+        if (level === "medium") return "Medium";
+        if (level === "low") return "Low";
+      }
+    }
+
+    // 2) Regulatory severity fallback.
+    const matchesAny = (set: Set<string>) => {
+      for (const item of set) {
+        if (normalized.includes(item) || item.includes(normalized)) return true;
+      }
+      return false;
+    };
+    let matchesRestricted = false;
+    for (const restricted of EU_RESTRICTED.keys()) {
+      if (normalized.includes(restricted) || restricted.includes(normalized)) {
+        matchesRestricted = true;
+        break;
+      }
+    }
+
+    const endocrineHit = matchesAny(ENDOCRINE_DISRUPTORS);
+    const carcinogenHit = matchesAny(CARCINOGEN_WATCHLIST);
+
+    if (endocrineHit && carcinogenHit) return "High";
+
+    if (matchesAny(FDA_BANNED) || matchesAny(EU_BANNED) || carcinogenHit)
+      return "High";
+    if (matchesRestricted || matchesAny(ALLERGENS) || endocrineHit) return "Medium";
+    return "Low";
+  };
+
+  const toxicScanCompounds = data.toxicCompounds.filter(
+    (comp) => getToxicRiskLevel(comp) !== "Low"
+  );
 
   return (
     <div className="animate-in fade-in slide-in-from-right-8 duration-500 px-2 md:px-4 py-2 md:py-4 space-y-24">
@@ -153,7 +336,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
               {data.ingredients.length} ingredients analyzed
             </span>
             <span className="px-3 py-1 rounded-full bg-white/65 border border-white/80">
-              {data.toxicCompounds.length} toxic flags
+              {toxicScanCompounds.length} toxic flags
             </span>
           </div>
         </div>
@@ -353,11 +536,38 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                   {!data.carcinogenStatus?.isClean && (
                     <div className="rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3">
                       <p className="text-sm font-semibold text-rose-700 mb-1">Carcinogen Alerts</p>
-                      <ul className="text-sm text-rose-800 space-y-1">
-                        {data.carcinogenStatus.issues.map((issue, idx) => (
-                          <li key={idx}>• {issue}</li>
-                        ))}
-                      </ul>
+                      {knownCarcinogenMatches.length > 0 && (
+                        <div className="mb-2">
+                          <p className="text-xs font-bold text-rose-700 uppercase tracking-[0.12em]">
+                            Known Carcinogens
+                          </p>
+                          <ul className="text-sm text-rose-800 space-y-1 mt-1">
+                            {knownCarcinogenMatches.map((item) => (
+                              <li key={item}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {suspectedCarcinogenMatches.length > 0 && (
+                        <div>
+                          <p className="text-xs font-bold text-amber-700 uppercase tracking-[0.12em]">
+                            Suspected Carcinogens
+                          </p>
+                          <ul className="text-sm text-amber-800 space-y-1 mt-1">
+                            {suspectedCarcinogenMatches.map((item) => (
+                              <li key={item}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {knownCarcinogenMatches.length === 0 &&
+                        suspectedCarcinogenMatches.length === 0 && (
+                          <ul className="text-sm text-rose-800 space-y-1">
+                            {data.carcinogenStatus.issues.map((issue, idx) => (
+                              <li key={idx}>• {issue}</li>
+                            ))}
+                          </ul>
+                        )}
                     </div>
                   )}
 
@@ -405,21 +615,146 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                 </div>
               </div>
             </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => setShowScoreMath((prev) => !prev)}
+                className="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-left"
+              >
+                <span className="text-xs uppercase tracking-[0.18em] text-[#9b8890] font-bold">
+                  Safety Score Math
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-[#7e6e75] transition-transform ${
+                    showScoreMath ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {showScoreMath && (
+                <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 space-y-2 text-xs text-[#51444b]">
+                  <p className="text-[11px] text-slate-500">
+                    Formula: Final Score = clamp(Base Score - Total Penalty, 0, 100)
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Base Score = (1 - ((1xLow + 3xMedium + 5xHigh) / (5xTotal Ingredients))) x 100
+                  </p>
+                  <div className="flex justify-between">
+                    <span>Weighted risk (1xL + 3xM + 5xH)</span>
+                    <span className="font-semibold">
+                      {scoreBreakdown.ingredientCounts.low * 1 +
+                        scoreBreakdown.ingredientCounts.medium * 3 +
+                        scoreBreakdown.ingredientCounts.high * 5}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Max risk (5xTotal Ingredients)</span>
+                    <span className="font-semibold">
+                      {scoreBreakdown.ingredientCounts.total * 5}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Ingredient counts (L/M/H)</span>
+                    <span className="font-semibold">
+                      {scoreBreakdown.ingredientCounts.low}/
+                      {scoreBreakdown.ingredientCounts.medium}/
+                      {scoreBreakdown.ingredientCounts.high}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Base score</span>
+                    <span className="font-semibold">{scoreBreakdown.baseScore}</span>
+                  </div>
+                  <div className="pt-1 border-t border-slate-200">
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 mb-1">
+                      Penalties
+                    </p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>
+                          FDA ({scoreBreakdown.penalties.fda.count} x{" "}
+                          {scoreBreakdown.penalties.fda.weight})
+                        </span>
+                        <span>-{scoreBreakdown.penalties.fda.total}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>
+                          EU ({scoreBreakdown.penalties.eu.count} x{" "}
+                          {scoreBreakdown.penalties.eu.weight})
+                        </span>
+                        <span>-{scoreBreakdown.penalties.eu.total}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>
+                          Carcinogen ({scoreBreakdown.penalties.carcinogen.count} x{" "}
+                          {scoreBreakdown.penalties.carcinogen.weight})
+                        </span>
+                        <span>-{scoreBreakdown.penalties.carcinogen.total}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>
+                          Endocrine ({scoreBreakdown.penalties.endocrine.count} x{" "}
+                          {scoreBreakdown.penalties.endocrine.weight})
+                        </span>
+                        <span>-{scoreBreakdown.penalties.endocrine.total}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>
+                          Allergen ({scoreBreakdown.penalties.allergen.count} x{" "}
+                          {scoreBreakdown.penalties.allergen.weight})
+                        </span>
+                        <span>-{scoreBreakdown.penalties.allergen.total}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pt-1 border-t border-slate-200 space-y-1">
+                    <div className="flex justify-between">
+                      <span>Total penalty</span>
+                      <span className="font-semibold">-{scoreBreakdown.totalPenalty}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Raw score</span>
+                      <span className="font-semibold">{scoreBreakdown.rawScore}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Final score (0-100)</span>
+                      <span className="font-bold">{scoreBreakdown.finalScore}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {data.toxicCompounds.length > 0 && (
+        {toxicScanCompounds.length > 0 && (
           <div className="rounded-2xl bg-rose-50/70 border border-rose-100 px-4 py-3">
             <p className="text-sm text-rose-800 font-semibold">Toxic compounds noted in this scan</p>
             <div className="mt-3 space-y-2">
-              {data.toxicCompounds.map((comp, idx) => (
-                <div key={idx} className="rounded-lg bg-white/80 border border-rose-100 px-3 py-2">
-                  <p className="text-sm font-semibold text-rose-700">{comp}</p>
-                  <p className="text-xs text-[#6d5c64] mt-1">
-                    Basis: {getToxicBasis(comp).join(", ")}
-                  </p>
-                </div>
-              ))}
+              {toxicScanCompounds.map((comp, idx) => {
+                const riskLevel = getToxicRiskLevel(comp);
+                return (
+                  <div key={idx} className="rounded-lg bg-white/80 border border-rose-100 px-3 py-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-rose-700">{comp}</p>
+                      <span
+                        className={`text-[10px] uppercase font-black px-2 py-1 rounded-md ${
+                          riskLevel === "High"
+                            ? "bg-rose-100 text-rose-700"
+                            : riskLevel === "Medium"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        {riskLevel} Risk
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#6d5c64] mt-1">
+                      Basis: {getToxicWhyThisLevel(comp)}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -463,6 +798,7 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                   <p className="text-sm text-rose-900 mt-1">
                     Classified as High when ingredient descriptions indicate severe toxicity concerns
                     such as carcinogenicity, endocrine disruption, or other serious long-term health risk.
+                    Ingredients matching both endocrine disruptor and carcinogen watchlists are auto-promoted to High.
                   </p>
                 </div>
                 <div className="mt-8 divide-y divide-rose-200/70">
@@ -484,9 +820,14 @@ const AnalysisResultView: React.FC<Props> = ({ data }) => {
                               <span className="font-semibold text-rose-800">Why this level:</span> {item.description}
                             </p>
                           )}
+                          {isDualWatchlistHigh(item.name) && (
+                            <p className="text-xs text-rose-700 font-semibold">
+                              Auto-promoted to High Risk: listed as both endocrine disruptor and possible carcinogen.
+                            </p>
+                          )}
                         </div>
                         <span className="shrink-0 text-[10px] uppercase font-black px-2 py-1 rounded-md bg-rose-100 text-rose-700">
-                          {item.hazardLevel}
+                          {isDualWatchlistHigh(item.name) ? "High" : item.hazardLevel}
                         </span>
                       </div>
                     </div>

@@ -2,6 +2,22 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "@/types/types";
 import { checkCompliance } from "./regulatoryService";
 
+const LOW_RISK_INGREDIENTS = [
+  "peg-12 dimethicone/ppg-20 crosspolymer",
+  "peg 12 dimethicone ppg 20 crosspolymer"
+];
+
+const normalizeIngredientName = (name: string): string =>
+  (name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const isAlwaysLowRiskIngredient = (name: string): boolean => {
+  const normalized = normalizeIngredientName(name);
+  return LOW_RISK_INGREDIENTS.some((target) => normalized === normalizeIngredientName(target));
+};
+
 export const analyzeCosmeticImage = async (base64Image: string): Promise<AnalysisResult> => {
   const model = 'gemini-3-flash-preview';
 
@@ -10,7 +26,7 @@ Analyze this cosmetic product image carefully and return structured JSON.
 
 1. Identify the product name and brand.
 2. Extract the full ingredient list if visible.
-3. Identify any specific toxic or controversial compounds.
+3. Identify any specific toxic or controversial compounds with reasoning.
 4. For each ingredient, assign a hazard level: Low, Medium, or High, based on likely reaction/effect on the human body:
    - High: known or strongly suspected carcinogens in bracket specify cancer causing ingredients, mutagens, reproductive toxins, endocrine (hormone) disruptors, persistent bioaccumulative toxins, or ingredients with serious organ/system toxicity.
    - Medium: common allergens/sensitizers/irritants (skin, eye, respiratory), ingredients with moderate evidence of harm, or concentration-dependent risk.
@@ -86,6 +102,22 @@ Do not include explanations outside the JSON.
   const result = JSON.parse(cleanText);
   console.log("Gemini AI Output:", JSON.stringify(result, null, 2));
 
+  // Deterministic safety override: this ingredient is always treated as Low risk.
+  if (Array.isArray(result.ingredients)) {
+    result.ingredients = result.ingredients.map((ing: any) => {
+      if (isAlwaysLowRiskIngredient(ing?.name || "")) {
+        return {
+          ...ing,
+          hazardLevel: "Low",
+          description:
+            ing?.description ||
+            "Project rule override: treated as Low risk based on internal safety policy."
+        };
+      }
+      return ing;
+    });
+  }
+
   // Calculate the Overall Safety Score deterministically
   let L = 0, M = 0, H = 0;
   
@@ -117,7 +149,9 @@ Do not include explanations outside the JSON.
     : [];
 
   const modelToxicCompounds: string[] = Array.isArray(result.toxicCompounds)
-    ? result.toxicCompounds.map((c: any) => String(c).trim()).filter((c: string) => c.length > 0)
+    ? result.toxicCompounds
+        .map((c: any) => String(c).trim())
+        .filter((c: string) => c.length > 0 && !isAlwaysLowRiskIngredient(c))
     : [];
 
   // Case-insensitive dedupe while preserving first-seen casing.
