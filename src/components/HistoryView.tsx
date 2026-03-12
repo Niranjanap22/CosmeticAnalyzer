@@ -10,6 +10,18 @@ const HistoryView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState<AnalysisResult | null>(null);
 
+  const formatScannedOn = (timestamp: number) => {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "Unknown date";
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(date);
+  };
+
   useEffect(() => {
     const fetchHistory = async () => {
       if (auth.currentUser) {
@@ -84,7 +96,7 @@ const HistoryView: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs text-[#9b8790]">
-                  Scanned on: {new Date(item.timestamp).toLocaleDateString()}
+                  Scanned on: {formatScannedOn(item.timestamp)}
                 </p>
               </div>
               <button

@@ -153,7 +153,6 @@ export const SUSPECTED_CARCINOGENS = new Set([
   "dioxane",
   "safrole",
   "potassium bromate",
-  "mineral oil",
   "aniline",
   "toluidine",
   "toluene-2,4-diamine",
