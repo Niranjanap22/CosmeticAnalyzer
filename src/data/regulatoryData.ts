@@ -232,5 +232,6 @@ export const ENDOCRINE_DISRUPTORS = new Set([
   "triphenyl phosphate",
   "nonylphenol",
   "4-tert-butylphenol",
-  "hydroquinone"
+  "hydroquinone",
+  "cyclotetrasiloxane"
 ]);
