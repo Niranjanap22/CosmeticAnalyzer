@@ -24,6 +24,9 @@ const AuthScreen: React.FC = () => {
       bullets: [
         'Ingredient Parsing: Reads the ingredient panel from uploaded product images and structures it into clean ingredient entries.',
         'Hazard Grouping: Every ingredient is categorized as Low, Medium, or High to simplify decision-making at a glance.',
+        'Risk Basis (Low): Generally well-tolerated ingredients with low toxicity evidence in normal cosmetic use.',
+        'Risk Basis (Medium): Common allergens/sensitizers/irritants or ingredients with moderate, context-dependent risk.',
+        'Risk Basis (High): Known/suspected carcinogens, endocrine disruptors, mutagens, reproductive toxins, or serious systemic toxicity concerns.',
         'Contextual Purpose: Shows likely function (preservative, fragrance, surfactant, UV filter, etc.) beside each ingredient.',
         'Research Shortcut: Adds one-click Wikipedia lookup so users can quickly investigate unfamiliar ingredients.',
         'Practical Readability: Ingredients are displayed in grouped sections with concise descriptions, not long raw lists.'
@@ -38,7 +41,7 @@ const AuthScreen: React.FC = () => {
         'Image Pipeline: Uploaded files are processed for readable quality before analysis begins.',
         'Model Output: The AI extracts brand, product name, ingredient list, toxic compounds, summary, and recommendation.',
         'Confidence Signal: Each scan includes trust percentage indicating how clearly the label could be read.',
-        'Deterministic Scoring: Final safety score is computed from hazard-level counts using a fixed formula.',
+        'Deterministic Scoring: Final safety score is computed from hazard-level counts plus fixed regulatory penalties.',
         'Structured Experience: After analysis, users are redirected to a dedicated results dashboard for full review.',
         'Scan History: Results can be stored and revisited to compare products over time.'
       ]
@@ -66,6 +69,7 @@ const AuthScreen: React.FC = () => {
         'Ingredients: Converts label text into readable ingredient cards with purpose, hazard levels, and education links.',
         'Technology: Uses image processing and AI extraction to identify product name, brand, ingredients, toxic compounds, and confidence in reading quality.',
         'Science: Flags carcinogens, allergens, and endocrine disruptors using FDA banned references plus EU banned/restricted standards.',
+        'Classification Basis: Low = low toxicity evidence, Medium = irritant/allergen or moderate concern, High = carcinogenic/endocrine/systemic severe concern.',
         'Compliance Layer: Runs deterministic post-processing checks against FDA, EU, carcinogen, allergen, and endocrine datasets from the project.',
         'Experience: Moves from upload to a dedicated results dashboard and stores scan history for future comparison.',
         'Safety Score Model: Computed locally after analysis using hazard counts, not a random model estimate.'
@@ -295,26 +299,26 @@ const AuthScreen: React.FC = () => {
                   </li>
                 </ol>
                 <div className="mt-3 rounded-xl bg-slate-900 text-slate-100 p-3 text-xs md:text-sm font-mono overflow-x-auto">
-                  baseScore = (1 - ((1xL + 3xM + 5xH) / (5x(L+M+H)))) x 100<br />
-                  regulatoryPenalty = 20xFDA + 20xEU + 10xCarcinogen + 7xEndocrine + 4xAllergen<br />
+                  baseScore = (1 - ((0.5xL + 2.5xM + 5xH) / (5x(L+M+H)))) x 100<br />
+                  regulatoryPenalty = 8xFDA + 6xEU + 5xCarcinogen + 4xEndocrine + 2xAllergen<br />
                   finalSafetyScore = clamp(baseScore - regulatoryPenalty, 0, 100)
                 </div>
                 <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/50 p-3">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-rose-500">Penalty Weights</p>
                   <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-slate-600">
-                    <p>FDA banned match: <strong>-20 each</strong></p>
-                    <p>EU banned/restricted match: <strong>-20 each</strong></p>
-                    <p>Carcinogen match: <strong>-10 each</strong></p>
-                    <p>Endocrine disruptor match: <strong>-7 each</strong></p>
-                    <p>Allergen match: <strong>-4 each</strong></p>
+                    <p>FDA banned match: <strong>-8 each</strong></p>
+                    <p>EU banned/restricted match: <strong>-6 each</strong></p>
+                    <p>Carcinogen match: <strong>-5 each</strong></p>
+                    <p>Endocrine disruptor match: <strong>-4 each</strong></p>
+                    <p>Allergen match: <strong>-2 each</strong></p>
                   </div>
                 </div>
                 <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Simple Example</p>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    If a product has 6 Low, 2 Medium, 1 High ingredients, base score is high.
+                    If a product has 6 Low, 2 Medium, 1 High ingredients, base score is first computed from weighted hazards.
                     If it also has 1 FDA match and 2 allergen matches, penalties are applied
-                    (20 + 8), then the final score is clamped to stay in 0-100.
+                    (8 + 4), then the final score is clamped to stay in 0-100.
                   </p>
                 </div>
                 <p className="mt-3 text-xs text-slate-500">
